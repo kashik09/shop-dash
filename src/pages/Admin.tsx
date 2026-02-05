@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Settings,
   Plus,
@@ -8,7 +8,10 @@ import {
   Package,
   CheckCircle,
   XCircle,
-  ImageIcon,
+  Upload,
+  FileImage,
+  X,
+  Link as LinkIcon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -40,6 +43,8 @@ export function Admin() {
     image: '',
     description: '',
   })
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     loadProducts()
@@ -74,11 +79,34 @@ export function Admin() {
         image: product.image || '',
         description: product.description || '',
       })
+      setUploadedFileName(null)
     } else {
       setEditingProduct(null)
       setFormData({ name: '', price: '', inStock: true, image: '', description: '' })
+      setUploadedFileName(null)
     }
     setDialogOpen(true)
+  }
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setUploadedFileName(file.name)
+      // Convert to base64 for preview and storage
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, image: reader.result as string }))
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleRemoveFile = () => {
+    setUploadedFileName(null)
+    setFormData((prev) => ({ ...prev, image: '' }))
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
   }
 
   const handleSubmit = async () => {
@@ -188,16 +216,70 @@ export function Admin() {
                   placeholder="$99.99"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="image">Image URL</Label>
-                <Input
-                  id="image"
-                  value={formData.image}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, image: e.target.value }))
-                  }
-                  placeholder="https://example.com/image.jpg"
-                />
+              <div className="space-y-3">
+                <Label>Product Image</Label>
+
+                {/* Upload Zone */}
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-emerald-400 rounded-lg p-6 text-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-colors"
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <Upload className="h-8 w-8 mx-auto mb-2 text-emerald-500" />
+                  <p className="text-sm">
+                    <span className="text-emerald-600 font-medium">Click to upload</span>
+                    {' '}your image
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">PNG, JPG, WEBP up to 5MB</p>
+                </div>
+
+                {/* Uploaded File Chip */}
+                {uploadedFileName && (
+                  <div className="flex items-center gap-2 p-2 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+                    <FileImage className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+                    <span className="text-sm truncate flex-1">{uploadedFileName}</span>
+                    <button
+                      type="button"
+                      onClick={handleRemoveFile}
+                      className="p-1 hover:bg-emerald-100 dark:hover:bg-emerald-900 rounded"
+                    >
+                      <X className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  </div>
+                )}
+
+                {/* OR Divider */}
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-xs text-muted-foreground">OR</span>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+
+                {/* URL Input */}
+                <div className="space-y-2">
+                  <Label htmlFor="image" className="text-sm flex items-center gap-1">
+                    <LinkIcon className="h-3 w-3" />
+                    Image URL
+                  </Label>
+                  <Input
+                    id="image"
+                    value={uploadedFileName ? '' : formData.image}
+                    onChange={(e) => {
+                      setUploadedFileName(null)
+                      setFormData((prev) => ({ ...prev, image: e.target.value }))
+                    }}
+                    placeholder="https://example.com/image.jpg"
+                    disabled={!!uploadedFileName}
+                  />
+                </div>
+
+                {/* Image Preview */}
                 {formData.image && (
                   <div className="mt-2 relative h-24 w-24 rounded-lg overflow-hidden border">
                     <img

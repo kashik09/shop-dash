@@ -1,13 +1,20 @@
 import { Router } from 'express'
 import { readData, writeData, getNextId } from '../utils/db.js'
+import { hashPassword } from '../utils/auth.js'
+import { requireSuperAdmin } from '../middleware/auth.js'
+import { logAudit } from '../utils/audit.js'
 
 const router = Router()
+router.use((req, res, next) => {
+  if (req.method === 'GET' || req.method === 'HEAD') return next()
+  return requireSuperAdmin(req, res, next)
+})
 
 // GET all admins
 router.get('/', (req, res) => {
   const admins = readData('admins')
   // Don't expose sensitive data
-  const safeAdmins = admins.map(({ password, ...admin }) => admin)
+  const safeAdmins = admins.map(({ password, passwordHash, ...admin }) => admin)
   res.json(safeAdmins)
 })
 
@@ -20,7 +27,7 @@ router.get('/:id', (req, res) => {
     return res.status(404).json({ error: 'Admin not found' })
   }
 
-  const { password, ...safeAdmin } = admin
+  const { password, passwordHash, ...safeAdmin } = admin
   res.json(safeAdmin)
 })
 
@@ -33,12 +40,12 @@ router.get('/email/:email', (req, res) => {
     return res.status(404).json({ error: 'Admin not found' })
   }
 
-  const { password, ...safeAdmin } = admin
+  const { password, passwordHash, ...safeAdmin } = admin
   res.json(safeAdmin)
 })
 
 // POST new admin
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const admins = readData('admins')
 
   // Check if email already exists
@@ -54,10 +61,25 @@ router.post('/', (req, res) => {
     createdAt: new Date().toISOString()
   }
 
+  if (req.body.password) {
+    newAdmin.passwordHash = await hashPassword(req.body.password)
+    delete newAdmin.password
+  }
+
   admins.push(newAdmin)
   writeData('admins', admins)
 
-  const { password, ...safeAdmin } = newAdmin
+  logAudit({
+    actorType: 'admin',
+    actorId: req.admin?.sub ?? null,
+    action: 'create_admin',
+    entity: 'admin',
+    entityId: newAdmin.id,
+    ip: req.ip,
+    userAgent: req.get('user-agent'),
+  })
+
+  const { password, passwordHash, ...safeAdmin } = newAdmin
   res.status(201).json(safeAdmin)
 })
 
@@ -73,7 +95,17 @@ router.put('/:id', (req, res) => {
   admins[index] = { ...admins[index], ...req.body }
   writeData('admins', admins)
 
-  const { password, ...safeAdmin } = admins[index]
+  logAudit({
+    actorType: 'admin',
+    actorId: req.admin?.sub ?? null,
+    action: 'update_admin',
+    entity: 'admin',
+    entityId: admins[index].id,
+    ip: req.ip,
+    userAgent: req.get('user-agent'),
+  })
+
+  const { password, passwordHash, ...safeAdmin } = admins[index]
   res.json(safeAdmin)
 })
 
@@ -89,7 +121,17 @@ router.patch('/:id', (req, res) => {
   admins[index] = { ...admins[index], ...req.body }
   writeData('admins', admins)
 
-  const { password, ...safeAdmin } = admins[index]
+  logAudit({
+    actorType: 'admin',
+    actorId: req.admin?.sub ?? null,
+    action: 'update_admin',
+    entity: 'admin',
+    entityId: admins[index].id,
+    ip: req.ip,
+    userAgent: req.get('user-agent'),
+  })
+
+  const { password, passwordHash, ...safeAdmin } = admins[index]
   res.json(safeAdmin)
 })
 
@@ -113,6 +155,16 @@ router.delete('/:id', (req, res) => {
 
   admins.splice(index, 1)
   writeData('admins', admins)
+
+  logAudit({
+    actorType: 'admin',
+    actorId: req.admin?.sub ?? null,
+    action: 'delete_admin',
+    entity: 'admin',
+    entityId: Number(req.params.id),
+    ip: req.ip,
+    userAgent: req.get('user-agent'),
+  })
 
   res.status(204).send()
 })

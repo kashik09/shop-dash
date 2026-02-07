@@ -1,7 +1,10 @@
 import { Router } from 'express'
 import { readData, writeData, getNextId } from '../utils/db.js'
+import { requireAdminForWrite } from '../middleware/auth.js'
+import { logAudit } from '../utils/audit.js'
 
 const router = Router()
+router.use(requireAdminForWrite)
 
 // GET all products
 router.get('/', (req, res) => {
@@ -45,6 +48,16 @@ router.post('/', (req, res) => {
   
   products.push(newProduct)
   writeData('products', products)
+
+  logAudit({
+    actorType: 'admin',
+    actorId: req.admin?.sub ?? null,
+    action: 'create_product',
+    entity: 'product',
+    entityId: newProduct.id,
+    ip: req.ip,
+    userAgent: req.get('user-agent'),
+  })
   
   res.status(201).json(newProduct)
 })
@@ -60,6 +73,16 @@ router.put('/:id', (req, res) => {
   
   products[index] = { ...products[index], ...req.body }
   writeData('products', products)
+
+  logAudit({
+    actorType: 'admin',
+    actorId: req.admin?.sub ?? null,
+    action: 'update_product',
+    entity: 'product',
+    entityId: products[index].id,
+    ip: req.ip,
+    userAgent: req.get('user-agent'),
+  })
   
   res.json(products[index])
 })
@@ -75,6 +98,16 @@ router.patch('/:id', (req, res) => {
   
   products[index] = { ...products[index], ...req.body }
   writeData('products', products)
+
+  logAudit({
+    actorType: 'admin',
+    actorId: req.admin?.sub ?? null,
+    action: 'update_product',
+    entity: 'product',
+    entityId: products[index].id,
+    ip: req.ip,
+    userAgent: req.get('user-agent'),
+  })
   
   res.json(products[index])
 })
@@ -88,8 +121,18 @@ router.delete('/:id', (req, res) => {
     return res.status(404).json({ error: 'Product not found' })
   }
   
-  products.splice(index, 1)
+  const deleted = products.splice(index, 1)[0]
   writeData('products', products)
+
+  logAudit({
+    actorType: 'admin',
+    actorId: req.admin?.sub ?? null,
+    action: 'delete_product',
+    entity: 'product',
+    entityId: deleted?.id ?? null,
+    ip: req.ip,
+    userAgent: req.get('user-agent'),
+  })
   
   res.status(204).send()
 })

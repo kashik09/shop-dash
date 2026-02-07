@@ -1,13 +1,26 @@
 import { Router } from 'express'
 import { readData, writeData, getNextId } from '../utils/db.js'
+import { decryptField, encryptField, hashValue, normalizeEmail, normalizePhone } from '../utils/crypto.js'
+import { hashPassword } from '../utils/auth.js'
+import { logAudit } from '../utils/audit.js'
 
 const router = Router()
+
+const toSafeUser = (user) => ({
+  id: user.id,
+  name: user.name,
+  email: user.email ? decryptField(user.email) : null,
+  phone: user.phone ? decryptField(user.phone) : null,
+  role: user.role,
+  preferences: user.preferences || {},
+  createdAt: user.createdAt,
+})
 
 // GET all users
 router.get('/', (req, res) => {
   const users = readData('users')
   // Don't expose sensitive data
-  const safeUsers = users.map(({ password, ...user }) => user)
+  const safeUsers = users.map(toSafeUser)
   res.json(safeUsers)
 })
 
@@ -20,44 +33,72 @@ router.get('/:id', (req, res) => {
     return res.status(404).json({ error: 'User not found' })
   }
 
-  const { password, ...safeUser } = user
-  res.json(safeUser)
+  res.json(toSafeUser(user))
 })
 
 // GET user by email
 router.get('/email/:email', (req, res) => {
   const users = readData('users')
-  const user = users.find(u => u.email === req.params.email)
+  const normalized = normalizeEmail(req.params.email)
+  const emailHash = hashValue(normalized)
+  const user = users.find(u => u.emailHash === emailHash) || users.find((u) => {
+    if (!u.email) return false
+    return decryptField(u.email) === normalized
+  })
 
   if (!user) {
     return res.status(404).json({ error: 'User not found' })
   }
 
-  const { password, ...safeUser } = user
-  res.json(safeUser)
+  res.json(toSafeUser(user))
 })
 
 // POST new user
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const users = readData('users')
 
   // Check if email already exists
-  if (users.find(u => u.email === req.body.email)) {
+  const normalizedEmail = req.body.email ? normalizeEmail(req.body.email) : null
+  const normalizedPhone = req.body.phone ? normalizePhone(req.body.phone) : null
+  const emailHash = normalizedEmail ? hashValue(normalizedEmail) : null
+  const phoneHash = normalizedPhone ? hashValue(normalizedPhone) : null
+
+  if (emailHash && users.find(u => u.emailHash === emailHash)) {
     return res.status(400).json({ error: 'Email already registered' })
+  }
+  if (phoneHash && users.find(u => u.phoneHash === phoneHash)) {
+    return res.status(400).json({ error: 'Phone already registered' })
   }
 
   const newUser = {
     id: getNextId(users),
     ...req.body,
+    email: normalizedEmail ? encryptField(normalizedEmail) : null,
+    phone: normalizedPhone ? encryptField(normalizedPhone) : null,
+    emailHash,
+    phoneHash,
     role: 'customer',
     createdAt: new Date().toISOString()
+  }
+
+  if (req.body.password) {
+    newUser.passwordHash = await hashPassword(req.body.password)
   }
 
   users.push(newUser)
   writeData('users', users)
 
-  const { password, ...safeUser } = newUser
-  res.status(201).json(safeUser)
+  logAudit({
+    actorType: 'admin',
+    actorId: req.admin?.sub ?? null,
+    action: 'create_user',
+    entity: 'user',
+    entityId: newUser.id,
+    ip: req.ip,
+    userAgent: req.get('user-agent'),
+  })
+
+  res.status(201).json(toSafeUser(newUser))
 })
 
 // PUT update user
@@ -69,11 +110,42 @@ router.put('/:id', (req, res) => {
     return res.status(404).json({ error: 'User not found' })
   }
 
-  users[index] = { ...users[index], ...req.body }
+  const updates = { ...req.body }
+  if (updates.email) {
+    const normalized = normalizeEmail(updates.email)
+    const emailHash = hashValue(normalized)
+    const duplicate = users.find((u) => u.emailHash === emailHash && u.id !== users[index].id)
+    if (duplicate) {
+      return res.status(400).json({ error: 'Email already registered' })
+    }
+    updates.email = encryptField(normalized)
+    updates.emailHash = emailHash
+  }
+  if (updates.phone) {
+    const normalized = normalizePhone(updates.phone)
+    const phoneHash = hashValue(normalized)
+    const duplicate = users.find((u) => u.phoneHash === phoneHash && u.id !== users[index].id)
+    if (duplicate) {
+      return res.status(400).json({ error: 'Phone already registered' })
+    }
+    updates.phone = encryptField(normalized)
+    updates.phoneHash = phoneHash
+  }
+
+  users[index] = { ...users[index], ...updates }
   writeData('users', users)
 
-  const { password, ...safeUser } = users[index]
-  res.json(safeUser)
+  logAudit({
+    actorType: 'admin',
+    actorId: req.admin?.sub ?? null,
+    action: 'update_user',
+    entity: 'user',
+    entityId: users[index].id,
+    ip: req.ip,
+    userAgent: req.get('user-agent'),
+  })
+
+  res.json(toSafeUser(users[index]))
 })
 
 // PATCH partial update
@@ -85,11 +157,42 @@ router.patch('/:id', (req, res) => {
     return res.status(404).json({ error: 'User not found' })
   }
 
-  users[index] = { ...users[index], ...req.body }
+  const updates = { ...req.body }
+  if (updates.email) {
+    const normalized = normalizeEmail(updates.email)
+    const emailHash = hashValue(normalized)
+    const duplicate = users.find((u) => u.emailHash === emailHash && u.id !== users[index].id)
+    if (duplicate) {
+      return res.status(400).json({ error: 'Email already registered' })
+    }
+    updates.email = encryptField(normalized)
+    updates.emailHash = emailHash
+  }
+  if (updates.phone) {
+    const normalized = normalizePhone(updates.phone)
+    const phoneHash = hashValue(normalized)
+    const duplicate = users.find((u) => u.phoneHash === phoneHash && u.id !== users[index].id)
+    if (duplicate) {
+      return res.status(400).json({ error: 'Phone already registered' })
+    }
+    updates.phone = encryptField(normalized)
+    updates.phoneHash = phoneHash
+  }
+
+  users[index] = { ...users[index], ...updates }
   writeData('users', users)
 
-  const { password, ...safeUser } = users[index]
-  res.json(safeUser)
+  logAudit({
+    actorType: 'admin',
+    actorId: req.admin?.sub ?? null,
+    action: 'update_user',
+    entity: 'user',
+    entityId: users[index].id,
+    ip: req.ip,
+    userAgent: req.get('user-agent'),
+  })
+
+  res.json(toSafeUser(users[index]))
 })
 
 // DELETE user
@@ -103,6 +206,16 @@ router.delete('/:id', (req, res) => {
 
   users.splice(index, 1)
   writeData('users', users)
+
+  logAudit({
+    actorType: 'admin',
+    actorId: req.admin?.sub ?? null,
+    action: 'delete_user',
+    entity: 'user',
+    entityId: Number(req.params.id),
+    ip: req.ip,
+    userAgent: req.get('user-agent'),
+  })
 
   res.status(204).send()
 })

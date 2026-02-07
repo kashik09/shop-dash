@@ -57,8 +57,8 @@ export function Terms() {
           <h2 className="text-xl font-semibold mb-3">5. Orders and Payment</h2>
           <p className="text-muted-foreground leading-relaxed">
             By placing an order, you are making an offer to purchase products. We reserve the right to accept
-            or decline any order. Payment must be made in full at the time of purchase. We accept various
-            payment methods including mobile money and card payments.
+            or decline any order. Payment terms will be shown at checkout. We currently accept mobile money
+            (MTN/Airtel) and may add additional payment methods in the future.
           </p>
         </section>
 

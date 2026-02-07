@@ -20,3 +20,9 @@ export interface CartContextType {
   total: string
   itemCount: number
 }
+
+export interface ShippingRate {
+  id: number
+  location: string
+  fee: number
+}

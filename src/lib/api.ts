@@ -1,4 +1,4 @@
-import { Product } from '@/types'
+import { Product, ShippingRate } from '@/types'
 
 const API_URL = 'http://localhost:4000'
 
@@ -48,5 +48,47 @@ export async function deleteProduct(id: number): Promise<void> {
   })
   if (!response.ok) {
     throw new Error('Failed to delete product')
+  }
+}
+
+// Shipping Rates
+export async function fetchShippingRates(): Promise<ShippingRate[]> {
+  const response = await fetch(`${API_URL}/shippingRates`)
+  if (!response.ok) {
+    throw new Error('Failed to fetch shipping rates')
+  }
+  return response.json()
+}
+
+export async function updateShippingRate(id: number, data: Partial<ShippingRate>): Promise<ShippingRate> {
+  const response = await fetch(`${API_URL}/shippingRates/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!response.ok) {
+    throw new Error('Failed to update shipping rate')
+  }
+  return response.json()
+}
+
+export async function createShippingRate(data: Omit<ShippingRate, 'id'>): Promise<ShippingRate> {
+  const response = await fetch(`${API_URL}/shippingRates`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!response.ok) {
+    throw new Error('Failed to create shipping rate')
+  }
+  return response.json()
+}
+
+export async function deleteShippingRate(id: number): Promise<void> {
+  const response = await fetch(`${API_URL}/shippingRates/${id}`, {
+    method: 'DELETE',
+  })
+  if (!response.ok) {
+    throw new Error('Failed to delete shipping rate')
   }
 }

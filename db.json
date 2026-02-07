@@ -8,5 +8,13 @@
     { "id": 6, "name": "Wireless Mouse", "price": "$49", "inStock": true, "description": "Ergonomic wireless mouse with precision tracking and long battery life.", "image": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&h=300&fit=crop" },
     { "id": 7, "name": "USB-C Hub", "price": "$59", "inStock": true, "description": "Multi-port USB-C hub with HDMI, USB-A, and SD card reader.", "image": "https://images.unsplash.com/photo-1625723044792-44de16ccb4e9?w=400&h=300&fit=crop" },
     { "id": 8, "name": "Webcam HD", "price": "$89", "inStock": true, "description": "1080p HD webcam with built-in microphone for crystal clear video calls.", "image": "https://images.unsplash.com/photo-1587826080692-f439cd0b70da?w=400&h=300&fit=crop" }
+  ],
+  "shippingRates": [
+    { "id": 1, "location": "Kampala", "fee": 0 },
+    { "id": 2, "location": "Entebbe", "fee": 5000 },
+    { "id": 3, "location": "Jinja", "fee": 8000 },
+    { "id": 4, "location": "Mbarara", "fee": 12000 },
+    { "id": 5, "location": "Gulu", "fee": 15000 },
+    { "id": 6, "location": "Other", "fee": 20000 }
   ]
 }

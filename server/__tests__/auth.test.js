@@ -26,6 +26,7 @@ beforeAll(async () => {
   process.env.NODE_ENV = 'test'
   process.env.DATA_DIR = testData.dir
   process.env.ADMIN_ORIGIN = adminOrigin
+  process.env.CORS_ORIGIN = adminOrigin
   process.env.ADMIN_BOOTSTRAP_PASSWORD = bootstrapPassword
   process.env.ADMIN_MAX_FAILED_ATTEMPTS = '2'
   process.env.ADMIN_LOCK_MINUTES = '10'
@@ -40,6 +41,7 @@ afterAll(() => {
   cleanup?.()
   delete process.env.DATA_DIR
   delete process.env.ADMIN_ORIGIN
+  delete process.env.CORS_ORIGIN
   delete process.env.ADMIN_BOOTSTRAP_PASSWORD
   delete process.env.ADMIN_MAX_FAILED_ATTEMPTS
   delete process.env.ADMIN_LOCK_MINUTES

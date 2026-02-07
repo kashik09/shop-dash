@@ -28,6 +28,13 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Product } from '@/types'
+
+const formatPriceValue = (value: number | string) => {
+  if (value === null || value === undefined || value === '') return '--'
+  const numeric = typeof value === 'number' ? value : Number(value)
+  if (Number.isNaN(numeric)) return String(value)
+  return numeric.toLocaleString('en-UG')
+}
 import { fetchProducts, createProduct, updateProduct, deleteProduct } from '@/lib/api'
 
 export function AdminProducts() {
@@ -339,7 +346,7 @@ export function AdminProducts() {
                           <span className="font-medium">{product.name}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 font-semibold">{product.price}</td>
+                      <td className="py-3 px-4 font-semibold">{formatPriceValue(product.price)}</td>
                       <td className="py-3 px-4">
                         <button onClick={() => handleToggleStock(product)}>
                           <Badge variant={product.inStock ? 'success' : 'destructive'} className="gap-1">

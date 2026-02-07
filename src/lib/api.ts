@@ -380,7 +380,10 @@ export async function adminLogin(payload: { email: string; password: string }): 
     credentials: 'include',
     body: JSON.stringify(payload),
   })
-  if (!res.ok) throw new Error('Admin login failed')
+  if (!res.ok) {
+    const data = await res.json().catch(() => null)
+    throw new Error(data?.error || 'Admin login failed')
+  }
   return res.json()
 }
 

@@ -38,12 +38,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => setItems([])
 
-  const total = items
-    .reduce((sum, item) => {
-      const price = parseFloat(item.price.replace('$', ''))
-      return sum + price * item.quantity
-    }, 0)
-    .toFixed(2)
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
 
@@ -55,7 +50,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         removeFromCart,
         updateQuantity,
         clearCart,
-        total: `$${total}`,
+        total,
         itemCount,
       }}
     >

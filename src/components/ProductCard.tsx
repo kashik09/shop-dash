@@ -2,7 +2,7 @@ import { Package, ShoppingCart, Trash2, CheckCircle, XCircle } from 'lucide-reac
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Product } from '@/types'
+import { Product, formatPrice } from '@/types'
 import { useCart } from '@/context/CartContext'
 import { cn } from '@/lib/utils'
 import { Link } from 'react-router-dom'
@@ -62,7 +62,7 @@ export function ProductCard({ product, onRemove, showAdminActions = false }: Pro
             isOutOfStock ? 'text-muted-foreground' : 'text-primary'
           )}
         >
-          {product.price}
+          {formatPrice(product.price)}
         </p>
         <Badge variant={product.inStock ? 'success' : 'destructive'} className="gap-1">
           {product.inStock ? (

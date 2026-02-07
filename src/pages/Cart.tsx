@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select'
 import { useCart } from '@/context/CartContext'
 import { fetchShippingRates } from '@/lib/api'
-import { ShippingRate } from '@/types'
+import { ShippingRate, formatPrice } from '@/types'
 
 export function Cart() {
   const { items, removeFromCart, updateQuantity, clearCart, total, itemCount } = useCart()
@@ -29,13 +29,11 @@ export function Cart() {
     try {
       const data = await fetchShippingRates()
       setShippingRates(data)
-      // Default to first location (usually free shipping in capital)
       if (data.length > 0) {
         setSelectedLocation(data[0].location)
         setShippingFee(data[0].fee)
       }
     } catch {
-      // Fallback data
       const fallback = [
         { id: 1, location: 'Kampala', fee: 0 },
         { id: 2, location: 'Entebbe', fee: 5000 },
@@ -53,13 +51,7 @@ export function Cart() {
     setShippingFee(rate?.fee || 0)
   }
 
-  // Parse total to number for calculation
-  const parsePrice = (price: string): number => {
-    return parseFloat(price.replace(/[^0-9.]/g, '')) || 0
-  }
-
-  const subtotalNum = parsePrice(total)
-  const grandTotal = subtotalNum + shippingFee
+  const grandTotal = total + shippingFee
 
   if (items.length === 0) {
     return (
@@ -104,7 +96,6 @@ export function Cart() {
             <Card key={item.id}>
               <CardContent className="p-4">
                 <div className="flex gap-4">
-                  {/* Product Image */}
                   {item.image ? (
                     <img
                       src={item.image}
@@ -117,7 +108,6 @@ export function Cart() {
                     </div>
                   )}
 
-                  {/* Product Info */}
                   <div className="flex-1 min-w-0">
                     <Link to={`/products/${item.id}`}>
                       <h3 className="font-semibold hover:text-primary transition-colors">
@@ -125,11 +115,10 @@ export function Cart() {
                       </h3>
                     </Link>
                     <p className="text-lg font-bold text-primary mt-1">
-                      {item.price}
+                      {formatPrice(item.price)}
                     </p>
                   </div>
 
-                  {/* Quantity Controls */}
                   <div className="flex flex-col items-end gap-2">
                     <div className="flex items-center gap-2">
                       <Button
@@ -187,7 +176,6 @@ export function Cart() {
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Shipping Location Selector */}
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
@@ -200,7 +188,7 @@ export function Cart() {
                   <SelectContent>
                     {shippingRates.map((rate) => (
                       <SelectItem key={rate.id} value={rate.location}>
-                        {rate.location} {rate.fee === 0 ? '(Free)' : `(UGX ${rate.fee.toLocaleString()})`}
+                        {rate.location} {rate.fee === 0 ? '(Free)' : `(${formatPrice(rate.fee)})`}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -210,22 +198,20 @@ export function Cart() {
               <div className="border-t pt-4 space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>{total}</span>
+                  <span>{formatPrice(total)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Shipping to {selectedLocation}</span>
                   {shippingFee === 0 ? (
                     <span className="text-green-600 font-medium">Free</span>
                   ) : (
-                    <span>UGX {shippingFee.toLocaleString()}</span>
+                    <span>{formatPrice(shippingFee)}</span>
                   )}
                 </div>
                 <div className="border-t pt-3">
                   <div className="flex justify-between font-semibold text-lg">
                     <span>Total</span>
-                    <span className="text-primary">
-                      UGX {grandTotal.toLocaleString()}
-                    </span>
+                    <span className="text-primary">{formatPrice(grandTotal)}</span>
                   </div>
                 </div>
               </div>

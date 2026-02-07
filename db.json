@@ -1,13 +1,81 @@
 {
   "products": [
-    { "id": 1, "name": "Laptop Pro", "price": "UGX 3,700,000", "inStock": true, "description": "High-performance laptop with 16GB RAM and 512GB SSD. Perfect for work and gaming.", "image": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop" },
-    { "id": 2, "name": "Smartphone X", "price": "UGX 2,600,000", "inStock": false, "description": "Latest smartphone with advanced camera system and all-day battery life.", "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop" },
-    { "id": 3, "name": "Tablet Air", "price": "UGX 1,850,000", "inStock": true, "description": "Lightweight tablet with stunning display for entertainment and productivity.", "image": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop" },
-    { "id": 4, "name": "4K Monitor", "price": "UGX 1,100,000", "inStock": true, "description": "27-inch 4K display with crisp visuals and eye-care technology.", "image": "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&h=300&fit=crop" },
-    { "id": 5, "name": "Mechanical Keyboard", "price": "UGX 290,000", "inStock": false, "description": "Premium mechanical keyboard with RGB lighting and tactile switches.", "image": "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=400&h=300&fit=crop" },
-    { "id": 6, "name": "Wireless Mouse", "price": "UGX 180,000", "inStock": true, "description": "Ergonomic wireless mouse with precision tracking and long battery life.", "image": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&h=300&fit=crop" },
-    { "id": 7, "name": "USB-C Hub", "price": "UGX 220,000", "inStock": true, "description": "Multi-port USB-C hub with HDMI, USB-A, and SD card reader.", "image": "https://images.unsplash.com/photo-1625723044792-44de16ccb4e9?w=400&h=300&fit=crop" },
-    { "id": 8, "name": "Webcam HD", "price": "UGX 330,000", "inStock": true, "description": "1080p HD webcam with built-in microphone for crystal clear video calls.", "image": "https://images.unsplash.com/photo-1587826080692-f439cd0b70da?w=400&h=300&fit=crop" }
+    {
+      "id": 1,
+      "name": "Laptop Pro",
+      "price": 3700000,
+      "inStock": true,
+      "category": "electronics",
+      "description": "High-performance laptop with 16GB RAM and 512GB SSD. Perfect for work and gaming.",
+      "image": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+    },
+    {
+      "id": 2,
+      "name": "Smartphone X",
+      "price": 2600000,
+      "inStock": false,
+      "category": "electronics",
+      "description": "Latest smartphone with advanced camera system and all-day battery life.",
+      "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop"
+    },
+    {
+      "id": 3,
+      "name": "Tablet Air",
+      "price": 1850000,
+      "inStock": true,
+      "category": "electronics",
+      "description": "Lightweight tablet with stunning display for entertainment and productivity.",
+      "image": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop"
+    },
+    {
+      "id": 4,
+      "name": "4K Monitor",
+      "price": 1100000,
+      "inStock": true,
+      "category": "electronics",
+      "description": "27-inch 4K display with crisp visuals and eye-care technology.",
+      "image": "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&h=300&fit=crop"
+    },
+    {
+      "id": 5,
+      "name": "Mechanical Keyboard",
+      "price": 290000,
+      "inStock": false,
+      "category": "accessories",
+      "description": "Premium mechanical keyboard with RGB lighting and tactile switches.",
+      "image": "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=400&h=300&fit=crop"
+    },
+    {
+      "id": 6,
+      "name": "Wireless Mouse",
+      "price": 180000,
+      "inStock": true,
+      "category": "accessories",
+      "description": "Ergonomic wireless mouse with precision tracking and long battery life.",
+      "image": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&h=300&fit=crop"
+    },
+    {
+      "id": 7,
+      "name": "USB-C Hub",
+      "price": 220000,
+      "inStock": true,
+      "category": "accessories",
+      "description": "Multi-port USB-C hub with HDMI, USB-A, and SD card reader.",
+      "image": "https://images.unsplash.com/photo-1625723044792-44de16ccb4e9?w=400&h=300&fit=crop"
+    },
+    {
+      "id": 8,
+      "name": "Webcam HD",
+      "price": 330000,
+      "inStock": true,
+      "category": "accessories",
+      "description": "1080p HD webcam with built-in microphone for crystal clear video calls.",
+      "image": "https://images.unsplash.com/photo-1587826080692-f439cd0b70da?w=400&h=300&fit=crop"
+    }
+  ],
+  "categories": [
+    { "id": 1, "name": "electronics", "label": "Electronics" },
+    { "id": 2, "name": "accessories", "label": "Accessories" }
   ],
   "shippingRates": [
     { "id": 1, "location": "Kampala", "fee": 0 },
@@ -16,5 +84,7 @@
     { "id": 4, "location": "Mbarara", "fee": 12000 },
     { "id": 5, "location": "Gulu", "fee": 15000 },
     { "id": 6, "location": "Other", "fee": 20000 }
-  ]
+  ],
+  "orders": [],
+  "users": []
 }

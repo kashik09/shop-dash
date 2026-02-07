@@ -81,7 +81,7 @@ export function Terms() {
         <section>
           <h2 className="text-xl font-semibold mb-3">8. Intellectual Property</h2>
           <p className="text-muted-foreground leading-relaxed">
-            All content on this website, including text, graphics, logos, and images, is the property of 
+            All content on this website, including text, graphics, logos, and images, is the property of{' '}
             {storeName} or its content suppliers and is protected by intellectual property laws.
             You may not reproduce, distribute, or create derivative works without our written permission.
           </p>

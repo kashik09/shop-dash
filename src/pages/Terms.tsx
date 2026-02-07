@@ -2,7 +2,8 @@ import { useSettings } from '@/context/SettingsContext'
 
 export function Terms() {
   const { storeName, settings } = useSettings()
-  const storeEmail = settings?.store?.email || 'contact@shopdash.com'
+  const storePhone = settings?.store?.phone || '+256 700 000 000'
+  const storePhoneLink = storePhone.replace(/\s+/g, '')
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -119,8 +120,8 @@ export function Terms() {
           <h2 className="text-xl font-semibold mb-3">12. Contact Information</h2>
           <p className="text-muted-foreground leading-relaxed">
             For questions about these Terms of Use, please contact us at{' '}
-            <a href={`mailto:${storeEmail}`} className="text-primary hover:underline">
-              {storeEmail}
+            <a href={`tel:${storePhoneLink}`} className="text-primary hover:underline">
+              {storePhone}
             </a>.
           </p>
         </section>

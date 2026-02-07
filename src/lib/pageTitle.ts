@@ -35,5 +35,5 @@ export const getPageTitle = (pathname: string) => {
 export const buildDocumentTitle = (pathname: string, storeName: string) => {
   const pageTitle = getPageTitle(pathname)
   if (!pageTitle) return storeName
-  return `${pageTitle} | ${storeName}`
+  return `${storeName} | ${pageTitle}`
 }

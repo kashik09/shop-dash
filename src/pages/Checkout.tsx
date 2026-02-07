@@ -37,6 +37,9 @@ export function Checkout() {
   const [selectedLocation, setSelectedLocation] = useState(draft?.selectedLocation || '')
   const [shippingFee, setShippingFee] = useState(0)
   const [customerName, setCustomerName] = useState(draft?.customerName || '')
+  const [receiverName, setReceiverName] = useState(draft?.receiverName || '')
+  const [receiverPhone, setReceiverPhone] = useState(draft?.receiverPhone || '')
+  const [deliveryNote, setDeliveryNote] = useState(draft?.deliveryNote || '')
   const [contactMethod, setContactMethod] = useState<'phone' | 'email'>(
     draft?.contactMethod === 'email' || draft?.contactMethod === 'phone'
       ? draft.contactMethod
@@ -125,13 +128,16 @@ export function Checkout() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const payload = {
-      contactMethod,
-      customerName,
-      customerEmail,
-      customerPhone,
-      selectedLocation,
-    }
+      const payload = {
+        contactMethod,
+        customerName,
+        customerEmail,
+        customerPhone,
+        receiverName,
+        receiverPhone,
+        deliveryNote,
+        selectedLocation,
+      }
     try {
       localStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(payload))
     } catch {
@@ -246,6 +252,44 @@ export function Checkout() {
                   />
                 </div>
               )}
+              <div className="pt-2 border-t border-border/60 space-y-4">
+                <div>
+                  <Label>Receiver Details (optional)</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Use this if someone else will receive the delivery.
+                  </p>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="receiverName">Receiver Name</Label>
+                    <Input
+                      id="receiverName"
+                      placeholder="Receiver full name"
+                      value={receiverName}
+                      onChange={(e) => setReceiverName(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="receiverPhone">Receiver Phone</Label>
+                    <Input
+                      id="receiverPhone"
+                      placeholder="+256 700 000 000"
+                      value={receiverPhone}
+                      onChange={(e) => setReceiverPhone(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="deliveryNote">Delivery Note</Label>
+                  <textarea
+                    id="deliveryNote"
+                    placeholder="Anything the rider should know?"
+                    value={deliveryNote}
+                    onChange={(e) => setDeliveryNote(e.target.value)}
+                    className="min-h-[96px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
 

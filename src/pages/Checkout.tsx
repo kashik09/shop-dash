@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/select'
 import { useAuth } from '@/context/AuthContext'
 import { useCart } from '@/context/CartContext'
-import { fetchMyPreferences, fetchShippingRates } from '@/lib/api'
+import { fetchFlutterwaveStatus, fetchMyPreferences, fetchShippingRates, startFlutterwaveCharge } from '@/lib/api'
 import { ShippingRate, formatPrice } from '@/types'
 
 export function Checkout() {
@@ -41,12 +41,28 @@ export function Checkout() {
   const [receiverPhone, setReceiverPhone] = useState(draft?.receiverPhone || '')
   const [deliveryNote, setDeliveryNote] = useState(draft?.deliveryNote || '')
   const [customerPhone, setCustomerPhone] = useState(draft?.customerPhone || '')
+  const [paymentNetwork, setPaymentNetwork] = useState(draft?.paymentNetwork || 'MTN')
+  const [paymentReady, setPaymentReady] = useState(false)
+  const [paymentLoading, setPaymentLoading] = useState(false)
+  const [paymentError, setPaymentError] = useState('')
+  const [paymentNote, setPaymentNote] = useState('')
   const [prefLoaded, setPrefLoaded] = useState(false)
-
-  const paymentReady = false
 
   useEffect(() => {
     loadShippingRates()
+  }, [])
+
+  useEffect(() => {
+    const loadPayments = async () => {
+      try {
+        const status = await fetchFlutterwaveStatus()
+        setPaymentReady(Boolean(status?.enabled))
+      } catch {
+        setPaymentReady(false)
+      }
+    }
+
+    loadPayments()
   }, [])
 
   useEffect(() => {
@@ -118,13 +134,78 @@ export function Checkout() {
       receiverPhone,
       deliveryNote,
       selectedLocation,
+      paymentNetwork,
     }
     try {
       localStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(payload))
     } catch {
       // Ignore storage errors
     }
-  }, [customerName, customerPhone, receiverName, receiverPhone, deliveryNote, selectedLocation])
+  }, [
+    customerName,
+    customerPhone,
+    receiverName,
+    receiverPhone,
+    deliveryNote,
+    selectedLocation,
+    paymentNetwork,
+  ])
+
+  const handlePayment = async () => {
+    setPaymentError('')
+    setPaymentNote('')
+
+    if (!paymentReady) {
+      setPaymentError('Mobile Money payments are not ready yet.')
+      return
+    }
+
+    if (!customerName.trim()) {
+      setPaymentError('Please add your full name before paying.')
+      return
+    }
+
+    if (!customerPhone.trim()) {
+      setPaymentError('Please add a valid phone number before paying.')
+      return
+    }
+
+    if (!selectedLocation) {
+      setPaymentError('Please choose a delivery location before paying.')
+      return
+    }
+
+    setPaymentLoading(true)
+    try {
+      const response = await startFlutterwaveCharge({
+        amount: grandTotal,
+        phone: customerPhone,
+        network: paymentNetwork,
+        customerName,
+        meta: {
+          location: selectedLocation,
+          receiverName: receiverName || null,
+          receiverPhone: receiverPhone || null,
+          note: deliveryNote || null,
+        },
+      })
+
+      const nextAction = response?.data?.next_action
+      if (nextAction?.type === 'redirect_url' && nextAction?.redirect_url?.url) {
+        window.location.href = nextAction.redirect_url.url
+        return
+      }
+
+      const instruction =
+        nextAction?.payment_instruction?.note ||
+        'Check your phone for a Mobile Money prompt to approve the payment.'
+      setPaymentNote(instruction)
+    } catch (err: any) {
+      setPaymentError(err?.message || 'Payment could not be started.')
+    } finally {
+      setPaymentLoading(false)
+    }
+  }
 
   const grandTotal = total + shippingFee
 
@@ -288,15 +369,45 @@ export function Checkout() {
                   </div>
                 </div>
               </div>
-              {!paymentReady && (
-                <p className="text-sm text-muted-foreground">
-                  Mobile Money payments will show here once setup is complete.
-                </p>
-              )}
+              <div className="space-y-3 border-t pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="paymentNetwork">Mobile Money Network</Label>
+                  <Select value={paymentNetwork} onValueChange={setPaymentNetwork}>
+                    <SelectTrigger id="paymentNetwork">
+                      <SelectValue placeholder="Select network" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="MTN">MTN Mobile Money</SelectItem>
+                      <SelectItem value="AIRTEL">Airtel Money</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {!paymentReady && (
+                  <p className="text-sm text-muted-foreground">
+                    Mobile Money payments will show here once setup is complete.
+                  </p>
+                )}
+                {paymentError && (
+                  <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                    {paymentError}
+                  </p>
+                )}
+                {paymentNote && (
+                  <p className="rounded-lg border border-border/60 bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+                    {paymentNote}
+                  </p>
+                )}
+              </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" size="lg" disabled={!paymentReady}>
-                Pay with Mobile Money
+              <Button
+                className="w-full"
+                size="lg"
+                disabled={!paymentReady || paymentLoading}
+                onClick={handlePayment}
+              >
+                {paymentLoading ? 'Starting payment...' : 'Pay with Mobile Money'}
               </Button>
             </CardFooter>
           </Card>

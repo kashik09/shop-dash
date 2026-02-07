@@ -397,3 +397,33 @@ export async function fetchAdminData(dataset: string) {
   if (!res.ok) throw new Error('Failed to fetch admin data')
   return res.json()
 }
+
+// ============================================
+// PAYMENTS (FLUTTERWAVE)
+// ============================================
+
+export async function fetchFlutterwaveStatus() {
+  const res = await fetch(`${API_URL}/payments/flutterwave/status`, { credentials: 'include' })
+  if (!res.ok) throw new Error('Failed to fetch payment status')
+  return res.json()
+}
+
+export async function startFlutterwaveCharge(payload: {
+  amount: number
+  phone: string
+  network: 'MTN' | 'AIRTEL'
+  customerName: string
+  meta?: Record<string, any>
+}) {
+  const res = await fetchWithCsrf(`${API_URL}/payments/flutterwave/uganda`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => null)
+    throw new Error(data?.error || 'Failed to start payment')
+  }
+  return res.json()
+}

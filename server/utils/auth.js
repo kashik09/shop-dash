@@ -3,6 +3,9 @@ import jwt from 'jsonwebtoken'
 
 const USER_SECRET = process.env.JWT_SECRET
 const ADMIN_SECRET = process.env.ADMIN_JWT_SECRET
+const ADMIN_SESSION_TTL_MINUTES = parseInt(process.env.ADMIN_SESSION_TTL_MINUTES || '120', 10)
+const ADMIN_SESSION_ROTATE_MINUTES = parseInt(process.env.ADMIN_SESSION_ROTATE_MINUTES || '15', 10)
+const ADMIN_SESSION_IDLE_MINUTES = parseInt(process.env.ADMIN_SESSION_IDLE_MINUTES || '30', 10)
 
 if (!USER_SECRET && process.env.NODE_ENV === 'production') {
   throw new Error('JWT_SECRET must be set in production')
@@ -36,7 +39,7 @@ export const signAdminToken = (admin) =>
       email: admin.email || null,
     },
     ADMIN_SECRET || 'dev_admin_secret',
-    { expiresIn: '7d' }
+    { expiresIn: `${ADMIN_SESSION_TTL_MINUTES}m` }
   )
 
 export const verifyUserToken = (token) =>
@@ -51,4 +54,18 @@ export const getCookieOptions = () => ({
   secure: process.env.NODE_ENV === 'production',
   path: '/',
   maxAge: 7 * 24 * 60 * 60 * 1000,
+})
+
+export const getAdminCookieOptions = () => ({
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: process.env.NODE_ENV === 'production',
+  path: '/',
+  maxAge: ADMIN_SESSION_TTL_MINUTES * 60 * 1000,
+})
+
+export const getAdminSessionConfig = () => ({
+  ttlMinutes: ADMIN_SESSION_TTL_MINUTES,
+  rotateMinutes: ADMIN_SESSION_ROTATE_MINUTES,
+  idleMinutes: ADMIN_SESSION_IDLE_MINUTES,
 })

@@ -4,8 +4,10 @@ import { decryptField, encryptField, hashValue, normalizeEmail, normalizePhone }
 import { logAudit } from '../utils/audit.js'
 import { requireUser } from '../middleware/auth.js'
 import { isEmail, isPhone, parseBoolean } from '../utils/validation.js'
+import { requireCsrfForWrite } from '../middleware/csrf.js'
 
 const router = Router()
+router.use(requireCsrfForWrite)
 
 const decryptOrder = (order) => ({
   ...order,

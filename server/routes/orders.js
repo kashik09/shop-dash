@@ -4,9 +4,11 @@ import { sendOrderConfirmation, sendShippingUpdate } from '../utils/resend.js'
 import { encryptField, decryptField } from '../utils/crypto.js'
 import { logAudit } from '../utils/audit.js'
 import { requireAdmin, requireUser } from '../middleware/auth.js'
+import { requireCsrfForWrite } from '../middleware/csrf.js'
 import { isEmail, isNonEmptyString, isPhone, parseInteger, parseNumber } from '../utils/validation.js'
 
 const router = Router()
+router.use(requireCsrfForWrite)
 
 const encryptOrder = (order) => ({
   ...order,

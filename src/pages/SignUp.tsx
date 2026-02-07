@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { UserPlus, Loader2, AlertCircle, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react'
+import { UserPlus, Loader2, AlertCircle, Eye, EyeOff, CheckCircle, Circle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -22,6 +22,9 @@ export function SignUp() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [passwordFocused, setPasswordFocused] = useState(false)
+  const hasEmail = email.trim().length > 0
+  const hasPhone = phone.trim().length > 0
 
   const passwordRules = [
     {
@@ -45,6 +48,7 @@ export function SignUp() {
       met: /[^A-Za-z0-9]/.test(password),
     },
   ]
+  const showPasswordRules = passwordFocused || password.length > 0
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -52,6 +56,11 @@ export function SignUp() {
 
     if (!email.trim() && !phone.trim()) {
       setError('Please provide an email or phone number')
+      return
+    }
+
+    if (email.trim() && phone.trim()) {
+      setError('Please use either email or phone, not both')
       return
     }
 
@@ -123,7 +132,15 @@ export function SignUp() {
                   type="email"
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    const nextEmail = e.target.value
+                    setEmail(nextEmail)
+                    if (nextEmail.trim() && phone.trim()) {
+                      setPhone('')
+                    }
+                  }}
+                  disabled={hasPhone}
+                  required={!hasPhone}
                 />
               </div>
               <div className="space-y-2">
@@ -133,7 +150,15 @@ export function SignUp() {
                   type="tel"
                   placeholder="+256 700 000 000"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => {
+                    const nextPhone = e.target.value
+                    setPhone(nextPhone)
+                    if (nextPhone.trim() && email.trim()) {
+                      setEmail('')
+                    }
+                  }}
+                  disabled={hasEmail}
+                  required={!hasEmail}
                 />
               </div>
               <div className="space-y-2">
@@ -145,6 +170,8 @@ export function SignUp() {
                     placeholder="At least 8 characters"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onFocus={() => setPasswordFocused(true)}
+                    onBlur={() => setPasswordFocused(false)}
                     required
                   />
                   <button
@@ -155,18 +182,30 @@ export function SignUp() {
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
-                </div>
-                <div className="grid gap-2 pt-2 text-xs text-muted-foreground">
-                  {passwordRules.map((rule) => (
-                    <div key={rule.label} className="flex items-center gap-2">
-                      {rule.met ? (
-                        <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
-                      ) : (
-                        <XCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                      )}
-                      <span className={rule.met ? 'text-foreground' : undefined}>{rule.label}</span>
+                  {showPasswordRules && (
+                    <div className="mt-3 sm:mt-0 sm:absolute sm:left-full sm:top-1/2 sm:-translate-y-1/2 sm:ml-4">
+                      <div className="relative rounded-xl border border-border/60 bg-neutral-900 px-4 py-3 text-xs text-white shadow-xl">
+                        <span className="hidden sm:block absolute left-0 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-neutral-900" />
+                        <p className="text-[0.7rem] font-semibold uppercase tracking-wide text-white/80">
+                          Your password must contain
+                        </p>
+                        <div className="mt-2 space-y-1.5">
+                          {passwordRules.map((rule) => (
+                            <div key={rule.label} className="flex items-center gap-2">
+                              {rule.met ? (
+                                <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
+                              ) : (
+                                <Circle className="h-3.5 w-3.5 text-white/50" />
+                              )}
+                              <span className={rule.met ? 'text-white' : 'text-white/70'}>
+                                {rule.label}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
               <div className="space-y-2">

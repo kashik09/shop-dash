@@ -6,6 +6,7 @@ import { AdminAuthProvider } from '@/context/AdminAuthContext'
 import { SettingsProvider } from '@/context/SettingsContext'
 import { Layout } from '@/components/layout/Layout'
 import { AdminLayout } from '@/components/layout/AdminLayout'
+import { DataLayout } from '@/components/layout/DataLayout'
 import { UserLayout } from '@/components/layout/UserLayout'
 import { RequireAuth } from '@/components/auth/RequireAuth'
 import { RequireAdmin } from '@/components/auth/RequireAdmin'
@@ -17,8 +18,10 @@ import { Checkout } from '@/pages/Checkout'
 import { Login } from '@/pages/Login'
 import { SignUp } from '@/pages/SignUp'
 import { Privacy } from '@/pages/Privacy'
+import { Payments } from '@/pages/Payments'
 import { Terms } from '@/pages/Terms'
 import { UserDashboard, UserOrders, UserPreferences } from '@/pages/dashboard'
+import { DataViewer } from '@/pages/data'
 import {
   Dashboard,
   AdminProducts,
@@ -53,6 +56,7 @@ function App() {
                   <Route path="/login" element={<Layout><Login /></Layout>} />
                   <Route path="/signup" element={<Layout><SignUp /></Layout>} />
                   <Route path="/privacy" element={<Layout><Privacy /></Layout>} />
+                  <Route path="/payments" element={<Layout><Payments /></Layout>} />
                   <Route path="/terms" element={<Layout><Terms /></Layout>} />
 
                   {/* User Dashboard Routes */}
@@ -119,6 +123,14 @@ function App() {
                     element={(
                       <RequireAdmin>
                         <AdminLayout><AdminSettings /></AdminLayout>
+                      </RequireAdmin>
+                    )}
+                  />
+                  <Route
+                    path="/admin-data"
+                    element={(
+                      <RequireAdmin>
+                        <DataLayout><DataViewer /></DataLayout>
                       </RequireAdmin>
                     )}
                   />

@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { readData, writeData } from '../utils/db.js'
 import { requireAdminForWrite } from '../middleware/auth.js'
+import { requireCsrfForWrite } from '../middleware/csrf.js'
 import { logAudit } from '../utils/audit.js'
 import {
   isNonEmptyString,
@@ -12,6 +13,7 @@ import {
 
 const router = Router()
 router.use(requireAdminForWrite)
+router.use(requireCsrfForWrite)
 
 const validateStorePatch = (payload) => {
   const updates = { ...payload }

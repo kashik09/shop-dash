@@ -4,12 +4,15 @@ import { hashPassword } from '../utils/auth.js'
 import { requireSuperAdmin } from '../middleware/auth.js'
 import { logAudit } from '../utils/audit.js'
 import { isEmail, isNonEmptyString } from '../utils/validation.js'
+import { requireCsrfForWrite } from '../middleware/csrf.js'
+import { logAdminAlert } from '../utils/admin-alerts.js'
 
 const router = Router()
 router.use((req, res, next) => {
   if (req.method === 'GET' || req.method === 'HEAD') return next()
   return requireSuperAdmin(req, res, next)
 })
+router.use(requireCsrfForWrite)
 
 const allowedRoles = new Set(['admin', 'super_admin'])
 
@@ -91,6 +94,15 @@ router.post('/', async (req, res) => {
   admins.push(newAdmin)
   writeData('admins', admins)
 
+  logAdminAlert({
+    adminId: newAdmin.id,
+    type: 'admin_created',
+    message: `Admin account created for ${newAdmin.email}.`,
+    ip: req.ip,
+    userAgent: req.get('user-agent'),
+    email: newAdmin.email,
+  })
+
   logAudit({
     actorType: 'admin',
     actorId: req.admin?.sub ?? null,
@@ -114,6 +126,7 @@ router.put('/:id', (req, res) => {
     return res.status(404).json({ error: 'Admin not found' })
   }
 
+  const previousRole = admins[index].role
   if (req.body?.email && !isEmail(req.body.email)) {
     return res.status(400).json({ error: 'Invalid email address' })
   }
@@ -126,6 +139,18 @@ router.put('/:id', (req, res) => {
 
   admins[index] = { ...admins[index], ...req.body }
   writeData('admins', admins)
+
+  if (req.body?.role && previousRole !== req.body.role) {
+    logAdminAlert({
+      adminId: admins[index].id,
+      type: 'role_changed',
+      message: `Admin role changed from ${previousRole} to ${req.body.role}.`,
+      ip: req.ip,
+      userAgent: req.get('user-agent'),
+      email: admins[index].email,
+      metadata: { previousRole, nextRole: req.body.role },
+    })
+  }
 
   logAudit({
     actorType: 'admin',
@@ -150,6 +175,7 @@ router.patch('/:id', (req, res) => {
     return res.status(404).json({ error: 'Admin not found' })
   }
 
+  const previousRole = admins[index].role
   if (req.body?.email && !isEmail(req.body.email)) {
     return res.status(400).json({ error: 'Invalid email address' })
   }
@@ -162,6 +188,18 @@ router.patch('/:id', (req, res) => {
 
   admins[index] = { ...admins[index], ...req.body }
   writeData('admins', admins)
+
+  if (req.body?.role && previousRole !== req.body.role) {
+    logAdminAlert({
+      adminId: admins[index].id,
+      type: 'role_changed',
+      message: `Admin role changed from ${previousRole} to ${req.body.role}.`,
+      ip: req.ip,
+      userAgent: req.get('user-agent'),
+      email: admins[index].email,
+      metadata: { previousRole, nextRole: req.body.role },
+    })
+  }
 
   logAudit({
     actorType: 'admin',

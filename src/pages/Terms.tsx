@@ -39,7 +39,12 @@ export function Terms() {
           <p className="text-muted-foreground leading-relaxed">
             To make purchases, you may need to create an account with your email or phone number.
             You are responsible for maintaining the confidentiality of your account and for all activities
-            that occur under your account. You agree to notify us immediately of any unauthorized use.
+            that occur under your account. You agree to notify us the same day (within 24 hours) if you
+            suspect any unauthorized use by calling or messaging{' '}
+            <a href={`tel:${storePhoneLink}`} className="text-primary hover:underline">
+              {storePhone}
+            </a>
+            . Reports made after 7 days may limit our ability to investigate or assist.
           </p>
         </section>
 
@@ -57,8 +62,9 @@ export function Terms() {
           <h2 className="text-xl font-semibold mb-3">5. Orders and Payment</h2>
           <p className="text-muted-foreground leading-relaxed">
             By placing an order, you are making an offer to purchase products. We reserve the right to accept
-            or decline any order. Payment terms will be shown at checkout. We currently accept mobile money
-            (MTN/Airtel) and may add additional payment methods in the future.
+            or decline any order. Payment terms will be shown at checkout. We currently accept MTN Mobile Money
+            and Airtel Money. Cash on delivery is available in select areas. We may add additional payment
+            methods in the future.
           </p>
         </section>
 
@@ -74,7 +80,7 @@ export function Terms() {
         <section>
           <h2 className="text-xl font-semibold mb-3">7. Returns and Refunds</h2>
           <p className="text-muted-foreground leading-relaxed">
-            All sales are final. We do not offer refunds or returns at this time.
+            All sales are final. We do not offer refunds or returns under any circumstances.
           </p>
         </section>
 
@@ -97,16 +103,7 @@ export function Terms() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">10. Governing Law</h2>
-          <p className="text-muted-foreground leading-relaxed">
-            These Terms of Use shall be governed by and construed in accordance with the laws of the
-            Republic of Uganda. Any disputes arising from these terms shall be subject to the exclusive
-            jurisdiction of the courts of Uganda.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-semibold mb-3">11. Changes to Terms</h2>
+          <h2 className="text-xl font-semibold mb-3">10. Changes to Terms</h2>
           <p className="text-muted-foreground leading-relaxed">
             We reserve the right to modify these Terms of Use at any time. Changes will be effective
             immediately upon posting. Your continued use of the website constitutes acceptance of
@@ -115,7 +112,7 @@ export function Terms() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">12. Contact Information</h2>
+          <h2 className="text-xl font-semibold mb-3">11. Contact Information</h2>
           <p className="text-muted-foreground leading-relaxed">
             For questions about these Terms of Use, please contact us at{' '}
             <a href={`tel:${storePhoneLink}`} className="text-primary hover:underline">

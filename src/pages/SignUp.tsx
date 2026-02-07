@@ -24,6 +24,8 @@ export function SignUp() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [passwordFocused, setPasswordFocused] = useState(false)
+  const passwordMismatch =
+    confirmPassword.length > 0 && password !== confirmPassword
 
   const passwordRules = [
     {
@@ -232,6 +234,8 @@ export function SignUp() {
                     placeholder="Confirm your password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    aria-invalid={passwordMismatch}
+                    className={passwordMismatch ? 'border-destructive focus-visible:ring-destructive' : ''}
                     required
                   />
                   <button
@@ -243,6 +247,11 @@ export function SignUp() {
                     {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+                {passwordMismatch && (
+                  <p className="text-xs text-destructive">
+                    Passwords do not match.
+                  </p>
+                )}
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Create Account'}

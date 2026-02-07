@@ -205,6 +205,8 @@ export function Checkout() {
                       setContactMethod('phone')
                       setCustomerEmail('')
                     }}
+                    size="sm"
+                    className="sm:h-10 sm:px-4 sm:py-2"
                   >
                     Use Phone
                   </Button>
@@ -215,6 +217,8 @@ export function Checkout() {
                       setContactMethod('email')
                       setCustomerPhone('')
                     }}
+                    size="sm"
+                    className="sm:h-10 sm:px-4 sm:py-2"
                   >
                     Use Email
                   </Button>

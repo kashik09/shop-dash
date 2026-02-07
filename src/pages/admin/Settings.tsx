@@ -138,7 +138,8 @@ export function AdminSettings() {
             <CardDescription>Basic details about your store</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="storeName">Store Name</Label>
               <Input
                 id="storeName"
@@ -149,8 +150,8 @@ export function AdminSettings() {
               <p className="text-xs text-muted-foreground">
                 This name appears in the header and footer
               </p>
-            </div>
-            <div className="space-y-2">
+              </div>
+              <div className="space-y-2">
               <Label htmlFor="email">Contact Email</Label>
               <Input
                 id="email"
@@ -160,7 +161,7 @@ export function AdminSettings() {
                 placeholder="contact@example.com"
               />
             </div>
-            <div className="space-y-2">
+              <div className="space-y-2">
               <Label htmlFor="phone">Phone Number</Label>
               <Input
                 id="phone"
@@ -169,7 +170,7 @@ export function AdminSettings() {
                 placeholder="+256 700 000 000"
               />
             </div>
-            <div className="space-y-2">
+              <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="address">Address</Label>
               <Input
                 id="address"
@@ -177,6 +178,7 @@ export function AdminSettings() {
                 onChange={(e) => updateStore('address', e.target.value)}
                 placeholder="Kampala, Uganda"
               />
+            </div>
             </div>
             <Button onClick={handleSaveStore} disabled={saving} className="gap-2">
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}

@@ -25,7 +25,7 @@ const toSafeUser = (user) => ({
 })
 
 const defaultPreferences = {
-  theme: 'dark',
+  theme: 'system',
   notifications: {
     orderUpdates: true,
     shippingUpdates: true,

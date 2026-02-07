@@ -19,7 +19,7 @@ const decryptOrder = (order) => ({
 
 const validatePreferencesPatch = (payload) => {
   const updates = { ...payload }
-  if (updates.theme !== undefined && !['light', 'dark'].includes(updates.theme)) {
+  if (updates.theme !== undefined && !['light', 'dark', 'system'].includes(updates.theme)) {
     return { ok: false, error: 'Invalid theme value' }
   }
   if (updates.notifications) {

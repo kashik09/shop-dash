@@ -13,9 +13,11 @@ import {
   StoreSettings,
 } from '@/lib/api'
 import { useSettings } from '@/context/SettingsContext'
+import { useTheme } from '@/context/ThemeContext'
 
 export function AdminSettings() {
   const { refresh } = useSettings()
+  const { theme, themeMode, setThemeMode } = useTheme()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [settings, setSettings] = useState<StoreSettings | null>(null)
@@ -131,6 +133,43 @@ export function AdminSettings() {
       </div>
 
       <div className="grid gap-6 max-w-2xl">
+        <Card>
+          <CardHeader>
+            <CardTitle>Appearance</CardTitle>
+            <CardDescription>Choose how the admin dashboard looks on this device.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Theme</Label>
+              <p className="text-sm text-muted-foreground">
+                Current: {themeMode === 'system' ? `System (${theme})` : themeMode}
+              </p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <Button
+                type="button"
+                variant={themeMode === 'system' ? 'default' : 'outline'}
+                onClick={() => setThemeMode('system')}
+              >
+                Use System
+              </Button>
+              <Button
+                type="button"
+                variant={themeMode === 'light' ? 'default' : 'outline'}
+                onClick={() => setThemeMode('light')}
+              >
+                Light
+              </Button>
+              <Button
+                type="button"
+                variant={themeMode === 'dark' ? 'default' : 'outline'}
+                onClick={() => setThemeMode('dark')}
+              >
+                Dark
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
         {/* Store Information */}
         <Card>
           <CardHeader>

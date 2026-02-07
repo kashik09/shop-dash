@@ -9,7 +9,7 @@ import { fetchMyPreferences, updateMyPreferences } from '@/lib/api'
 import { useTheme } from '@/context/ThemeContext'
 
 const defaultPreferences = {
-  theme: 'dark',
+  theme: 'system',
   notifications: {
     orderUpdates: true,
     shippingUpdates: true,
@@ -25,7 +25,7 @@ const defaultPreferences = {
 }
 
 export function UserPreferences() {
-  const { theme, toggleTheme } = useTheme()
+  const { theme, themeMode, setThemeMode } = useTheme()
   const [preferences, setPreferences] = useState(defaultPreferences)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -37,9 +37,10 @@ export function UserPreferences() {
         const data = await fetchMyPreferences()
         const merged = { ...defaultPreferences, ...data }
         setPreferences(merged)
-        if (merged.theme && merged.theme !== theme) {
-          toggleTheme()
-        }
+        const nextMode = merged.theme === 'light' || merged.theme === 'dark' || merged.theme === 'system'
+          ? merged.theme
+          : 'system'
+        setThemeMode(nextMode)
       } catch (err: any) {
         setError(err.message || 'Failed to load preferences')
       } finally {
@@ -102,21 +103,45 @@ export function UserPreferences() {
             </CardTitle>
             <CardDescription>Choose how the dashboard looks.</CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center justify-between">
+          <CardContent className="space-y-4">
             <div>
               <Label>Theme</Label>
-              <p className="text-sm text-muted-foreground">Current: {theme}</p>
+              <p className="text-sm text-muted-foreground">
+                Current: {themeMode === 'system' ? `System (${theme})` : themeMode}
+              </p>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => {
-                const nextTheme = theme === 'dark' ? 'light' : 'dark'
-                toggleTheme()
-                setPreferences((prev) => ({ ...prev, theme: nextTheme }))
-              }}
-            >
-              Toggle Theme
-            </Button>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <Button
+                type="button"
+                variant={preferences.theme === 'system' ? 'default' : 'outline'}
+                onClick={() => {
+                  setThemeMode('system')
+                  setPreferences((prev) => ({ ...prev, theme: 'system' }))
+                }}
+              >
+                Use System
+              </Button>
+              <Button
+                type="button"
+                variant={preferences.theme === 'light' ? 'default' : 'outline'}
+                onClick={() => {
+                  setThemeMode('light')
+                  setPreferences((prev) => ({ ...prev, theme: 'light' }))
+                }}
+              >
+                Light
+              </Button>
+              <Button
+                type="button"
+                variant={preferences.theme === 'dark' ? 'default' : 'outline'}
+                onClick={() => {
+                  setThemeMode('dark')
+                  setPreferences((prev) => ({ ...prev, theme: 'dark' }))
+                }}
+              >
+                Dark
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

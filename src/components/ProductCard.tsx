@@ -6,6 +6,7 @@ import { Product, formatPrice } from '@/types'
 import { useCart } from '@/context/CartContext'
 import { cn } from '@/lib/utils'
 import { Link } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
 
 interface ProductCardProps {
   product: Product
@@ -16,6 +17,65 @@ interface ProductCardProps {
 export function ProductCard({ product, onRemove, showAdminActions = false }: ProductCardProps) {
   const { addToCart } = useCart()
   const isOutOfStock = !product.inStock
+  const [outOfStockClicks, setOutOfStockClicks] = useState(0)
+  const [showInlineNotice, setShowInlineNotice] = useState(false)
+  const [showToast, setShowToast] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const hideTimerRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const media = window.matchMedia('(max-width: 640px)')
+    const update = () => setIsMobile(media.matches)
+    update()
+    if (media.addEventListener) {
+      media.addEventListener('change', update)
+      return () => media.removeEventListener('change', update)
+    }
+    media.addListener(update)
+    return () => media.removeListener(update)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (hideTimerRef.current) {
+        window.clearTimeout(hideTimerRef.current)
+        hideTimerRef.current = null
+      }
+    }
+  }, [])
+
+  const triggerOutOfStockNotice = () => {
+    setOutOfStockClicks((prev) => {
+      const next = prev + 1
+      if (next < 2) return next
+
+      if (hideTimerRef.current) {
+        window.clearTimeout(hideTimerRef.current)
+      }
+
+      if (isMobile) {
+        setShowInlineNotice(true)
+      } else {
+        setShowToast(true)
+      }
+
+      hideTimerRef.current = window.setTimeout(() => {
+        setShowInlineNotice(false)
+        setShowToast(false)
+      }, 2500)
+
+      return next
+    })
+  }
+
+  const handleAddToCart = () => {
+    if (isOutOfStock) {
+      triggerOutOfStockNotice()
+      return
+    }
+    addToCart(product)
+  }
 
   return (
     <Card
@@ -81,9 +141,9 @@ export function ProductCard({ product, onRemove, showAdminActions = false }: Pro
 
       <CardFooter className="p-4 pt-0 flex gap-2">
         <Button
-          className="flex-1 gap-2"
-          disabled={isOutOfStock}
-          onClick={() => addToCart(product)}
+          className={cn('flex-1 gap-2', isOutOfStock && 'opacity-60 cursor-not-allowed')}
+          aria-disabled={isOutOfStock}
+          onClick={handleAddToCart}
         >
           <ShoppingCart className="h-4 w-4" />
           Add to Cart
@@ -98,6 +158,18 @@ export function ProductCard({ product, onRemove, showAdminActions = false }: Pro
           </Button>
         )}
       </CardFooter>
+      {showInlineNotice && isOutOfStock && (
+        <div className="px-4 pb-4">
+          <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
+            This item is currently out of stock.
+          </div>
+        </div>
+      )}
+      {showToast && isOutOfStock && !isMobile && (
+        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-destructive/30 bg-destructive/95 px-4 py-3 text-sm font-semibold text-destructive-foreground shadow-2xl">
+          This item is currently out of stock.
+        </div>
+      )}
     </Card>
   )
 }

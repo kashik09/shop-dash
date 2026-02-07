@@ -18,6 +18,7 @@ import adminAuthRouter from './routes/admin-auth.js'
 import meRouter from './routes/me.js'
 import csrfRouter from './routes/csrf.js'
 import adminDataRouter from './routes/admin-data.js'
+import paymentsRouter from './routes/payments.js'
 import { requireAdmin } from './middleware/auth.js'
 import { requireAdminOrigin } from './middleware/admin-origin.js'
 
@@ -83,6 +84,7 @@ export const createApp = () => {
   app.use('/api/admin-auth', requireAdminOrigin, authLimiter, adminAuthRouter)
   app.use('/api/me', meRouter)
   app.use('/api/admin-data', requireAdmin, adminDataRouter)
+  app.use('/api/payments', paymentsRouter)
 
   // Health check
   app.get('/api/health', (req, res) => {

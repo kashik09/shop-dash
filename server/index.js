@@ -24,6 +24,7 @@ app.listen(PORT, () => {
   - /api/admin-auth
   - /api/me
   - /api/admin-data
+  - /api/payments
   - /api/health
   ====================================
   `)

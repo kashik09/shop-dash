@@ -193,8 +193,8 @@ export function AdminSettings() {
             <CardTitle>Tax Settings</CardTitle>
             <CardDescription>Configure VAT and tax rates</CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-2">
-            <div className="flex items-center justify-between sm:col-span-2">
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
               <div>
                 <Label>Enable Tax</Label>
                 <p className="text-sm text-muted-foreground">Apply tax to orders</p>
@@ -206,27 +206,29 @@ export function AdminSettings() {
             </div>
             {settings.tax.enabled && (
               <>
-                <div className="space-y-2">
-                  <Label htmlFor="taxName">Tax Name</Label>
-                  <Input
-                    id="taxName"
-                    value={settings.tax.name}
-                    onChange={(e) => updateTax('name', e.target.value)}
-                    placeholder="VAT"
-                  />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="taxName">Tax Name</Label>
+                    <Input
+                      id="taxName"
+                      value={settings.tax.name}
+                      onChange={(e) => updateTax('name', e.target.value)}
+                      placeholder="VAT"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="taxRate">Tax Rate (%)</Label>
+                    <Input
+                      id="taxRate"
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={settings.tax.rate}
+                      onChange={(e) => updateTax('rate', parseFloat(e.target.value) || 0)}
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="taxRate">Tax Rate (%)</Label>
-                  <Input
-                    id="taxRate"
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={settings.tax.rate}
-                    onChange={(e) => updateTax('rate', parseFloat(e.target.value) || 0)}
-                  />
-                </div>
-                <div className="flex items-center justify-between sm:col-span-2">
+                <div className="flex items-center justify-between">
                   <div>
                     <Label>Tax Included in Price</Label>
                     <p className="text-sm text-muted-foreground">Prices already include tax</p>

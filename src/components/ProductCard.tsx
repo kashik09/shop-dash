@@ -80,10 +80,15 @@ export function ProductCard({ product, onRemove, showAdminActions = false }: Pro
   return (
     <Card
       className={cn(
-        'group overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1',
+        'group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1',
         isOutOfStock && 'opacity-75'
       )}
     >
+      {showInlineNotice && isOutOfStock && isMobile && (
+        <div className="absolute left-3 right-3 top-3 z-10 rounded-lg border border-destructive/30 bg-destructive/90 px-3 py-2 text-xs font-medium text-destructive-foreground shadow-lg">
+          This item is currently out of stock.
+        </div>
+      )}
       <CardHeader className="p-0">
         {product.image ? (
           <div className="h-40 overflow-hidden">
@@ -158,15 +163,8 @@ export function ProductCard({ product, onRemove, showAdminActions = false }: Pro
           </Button>
         )}
       </CardFooter>
-      {showInlineNotice && isOutOfStock && (
-        <div className="px-4 pb-4">
-          <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
-            This item is currently out of stock.
-          </div>
-        </div>
-      )}
       {showToast && isOutOfStock && !isMobile && (
-        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-destructive/30 bg-destructive/95 px-4 py-3 text-sm font-semibold text-destructive-foreground shadow-2xl">
+        <div className="fixed right-6 top-6 z-50 rounded-xl border border-destructive/30 bg-destructive/95 px-4 py-3 text-sm font-semibold text-destructive-foreground shadow-2xl">
           This item is currently out of stock.
         </div>
       )}

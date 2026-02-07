@@ -3,10 +3,12 @@ import { ShoppingCart, Package, Home, LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useCart } from '@/context/CartContext'
+import { useSettings } from '@/context/SettingsContext'
 import { cn } from '@/lib/utils'
 
 export function Header() {
   const { itemCount } = useCart()
+  const { storeName } = useSettings()
   const location = useLocation()
 
   const navItems = [
@@ -22,7 +24,7 @@ export function Header() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
               <Package className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="font-bold text-xl hidden sm:inline">ShopDash</span>
+            <span className="font-bold text-xl hidden sm:inline">{storeName}</span>
           </Link>
 
           <nav className="flex items-center gap-1">

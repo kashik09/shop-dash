@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from '@/context/ThemeContext'
 import { CartProvider } from '@/context/CartContext'
 import { AuthProvider } from '@/context/AuthContext'
+import { SettingsProvider } from '@/context/SettingsContext'
 import { Layout } from '@/components/layout/Layout'
 import { AdminLayout } from '@/components/layout/AdminLayout'
 import { Home } from '@/pages/Home'
@@ -10,6 +11,8 @@ import { ProductDetail } from '@/pages/ProductDetail'
 import { Cart } from '@/pages/Cart'
 import { Login } from '@/pages/Login'
 import { SignUp } from '@/pages/SignUp'
+import { Privacy } from '@/pages/Privacy'
+import { Terms } from '@/pages/Terms'
 import {
   Dashboard,
   AdminProducts,
@@ -22,9 +25,10 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
-        <AuthProvider>
-          <CartProvider>
-            <Routes>
+        <SettingsProvider>
+          <AuthProvider>
+            <CartProvider>
+              <Routes>
             {/* Store Routes */}
             <Route path="/" element={<Layout><Home /></Layout>} />
             <Route path="/products" element={<Layout><Products /></Layout>} />
@@ -32,6 +36,8 @@ function App() {
             <Route path="/cart" element={<Layout><Cart /></Layout>} />
             <Route path="/login" element={<Layout><Login /></Layout>} />
             <Route path="/signup" element={<Layout><SignUp /></Layout>} />
+            <Route path="/privacy" element={<Layout><Privacy /></Layout>} />
+            <Route path="/terms" element={<Layout><Terms /></Layout>} />
 
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout><Dashboard /></AdminLayout>} />
@@ -39,9 +45,10 @@ function App() {
             <Route path="/admin/shipping" element={<AdminLayout><AdminShipping /></AdminLayout>} />
             <Route path="/admin/orders" element={<AdminLayout><AdminOrders /></AdminLayout>} />
             <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
-          </Routes>
-          </CartProvider>
-        </AuthProvider>
+              </Routes>
+            </CartProvider>
+          </AuthProvider>
+        </SettingsProvider>
       </ThemeProvider>
     </BrowserRouter>
   )

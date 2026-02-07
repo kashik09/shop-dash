@@ -139,9 +139,14 @@ export function Cart() {
                 <div className="space-y-2">
                   {items.map((item) => (
                     <div key={item.id} className="flex items-center justify-between text-sm">
-                      <span className="truncate text-muted-foreground">
-                        {item.name} x{item.quantity}
-                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate text-muted-foreground">
+                          {item.name} x{item.quantity}
+                        </p>
+                        <p className="text-xs text-muted-foreground/70">
+                          {formatPrice(item.price)} each
+                        </p>
+                      </div>
                       <span className="font-medium text-foreground">
                         {formatPrice(item.price * item.quantity)}
                       </span>

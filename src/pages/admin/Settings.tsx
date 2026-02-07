@@ -140,45 +140,45 @@ export function AdminSettings() {
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="storeName">Store Name</Label>
-              <Input
-                id="storeName"
-                value={settings.store.name}
-                onChange={(e) => updateStore('name', e.target.value)}
-                placeholder="Your Store Name"
-              />
-              <p className="text-xs text-muted-foreground">
-                This name appears in the header and footer
-              </p>
+                <Label htmlFor="storeName">Store Name</Label>
+                <Input
+                  id="storeName"
+                  value={settings.store.name}
+                  onChange={(e) => updateStore('name', e.target.value)}
+                  placeholder="Your Store Name"
+                />
+                <p className="text-xs text-muted-foreground">
+                  This name appears in the header and footer
+                </p>
               </div>
               <div className="space-y-2">
-              <Label htmlFor="email">Contact Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={settings.store.email}
-                onChange={(e) => updateStore('email', e.target.value)}
-                placeholder="contact@example.com"
-              />
-            </div>
+                <Label htmlFor="email">Contact Email or Phone</Label>
+                <Input
+                  id="email"
+                  type="text"
+                  value={settings.store.email}
+                  onChange={(e) => updateStore('email', e.target.value)}
+                  placeholder="+256 700 000 000 or contact@example.com"
+                />
+              </div>
               <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                value={settings.store.phone}
-                onChange={(e) => updateStore('phone', e.target.value)}
-                placeholder="+256 700 000 000"
-              />
-            </div>
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input
+                  id="phone"
+                  value={settings.store.phone}
+                  onChange={(e) => updateStore('phone', e.target.value)}
+                  placeholder="+256 700 000 000"
+                />
+              </div>
               <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="address">Address</Label>
-              <Input
-                id="address"
-                value={settings.store.address}
-                onChange={(e) => updateStore('address', e.target.value)}
-                placeholder="Kampala, Uganda"
-              />
-            </div>
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  value={settings.store.address}
+                  onChange={(e) => updateStore('address', e.target.value)}
+                  placeholder="Kampala, Uganda"
+                />
+              </div>
             </div>
             <Button onClick={handleSaveStore} disabled={saving} className="gap-2">
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -193,8 +193,8 @@ export function AdminSettings() {
             <CardTitle>Tax Settings</CardTitle>
             <CardDescription>Configure VAT and tax rates</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
+          <CardContent className="grid gap-4 sm:grid-cols-2">
+            <div className="flex items-center justify-between sm:col-span-2">
               <div>
                 <Label>Enable Tax</Label>
                 <p className="text-sm text-muted-foreground">Apply tax to orders</p>
@@ -226,7 +226,7 @@ export function AdminSettings() {
                     onChange={(e) => updateTax('rate', parseFloat(e.target.value) || 0)}
                   />
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between sm:col-span-2">
                   <div>
                     <Label>Tax Included in Price</Label>
                     <p className="text-sm text-muted-foreground">Prices already include tax</p>
@@ -247,7 +247,7 @@ export function AdminSettings() {
             <CardTitle>Notifications</CardTitle>
             <CardDescription>Email notification preferences</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="grid gap-4 sm:grid-cols-2">
             <div className="flex items-center justify-between">
               <div>
                 <Label>Email Notifications</Label>
@@ -288,7 +288,7 @@ export function AdminSettings() {
                 onCheckedChange={(checked) => updateNotification('lowStockAlert', checked)}
               />
             </div>
-            <Button onClick={handleSaveNotifications} disabled={saving} className="gap-2">
+            <Button onClick={handleSaveNotifications} disabled={saving} className="gap-2 sm:col-span-2">
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               Save Notifications
             </Button>
@@ -301,7 +301,7 @@ export function AdminSettings() {
             <CardTitle>Cookie Controls</CardTitle>
             <CardDescription>Manage cookie usage and consent banner</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="grid gap-4 sm:grid-cols-2">
             <div className="flex items-center justify-between">
               <div>
                 <Label>Enable Cookies</Label>
@@ -322,7 +322,7 @@ export function AdminSettings() {
                 onCheckedChange={(checked) => updateCookies('requireConsent', checked)}
               />
             </div>
-            <Button onClick={handleSaveCookies} disabled={saving} className="gap-2">
+            <Button onClick={handleSaveCookies} disabled={saving} className="gap-2 sm:col-span-2">
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               Save Cookie Settings
             </Button>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { UserPlus, Loader2, Mail, Phone } from 'lucide-react'
+import { UserPlus, Loader2, Mail, Phone, AlertCircle, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -120,14 +120,16 @@ export function SignUp() {
           </CardHeader>
           <CardContent className="space-y-4">
             {error && (
-              <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-950/50 rounded-lg">
-                {error}
+              <div className="flex items-start gap-3 p-3 text-sm rounded-lg border border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-200">
+                <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <span>{error}</span>
               </div>
             )}
 
             {success && (
-              <div className="p-3 text-sm text-green-600 bg-green-50 dark:bg-green-950/50 rounded-lg">
-                {success}
+              <div className="flex items-start gap-3 p-3 text-sm rounded-lg border border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950/30 dark:text-green-200">
+                <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <span>{success}</span>
               </div>
             )}
 

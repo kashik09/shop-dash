@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { useSettings } from '@/context/SettingsContext'
 import { useAuth } from '@/context/AuthContext'
@@ -82,19 +83,38 @@ export function CookieConsentBanner() {
   if (!visible) return null
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-3xl rounded-lg border bg-background p-4 shadow-lg">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-muted-foreground">
-          We use cookies to remember your preferences and improve your experience. You can update
-          your choice at any time.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={() => handleChoice('declined')} disabled={saving}>
-            Decline
-          </Button>
-          <Button onClick={() => handleChoice('accepted')} disabled={saving}>
-            Accept
-          </Button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 px-4 py-6 backdrop-blur-sm">
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="w-full max-w-xl rounded-2xl border border-border/70 bg-card/95 p-6 shadow-2xl shadow-black/20"
+      >
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary">
+            <span className="text-sm font-semibold">C</span>
+          </div>
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Cookies</p>
+            <h3 className="text-lg font-semibold text-foreground">Control your cookie choices</h3>
+            <p className="text-sm text-muted-foreground">
+              We use cookies to remember your preferences and improve your experience. You can
+              update your choice any time in your browser settings.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+          <Link to="/privacy" className="text-sm text-primary hover:underline">
+            Privacy policy
+          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={() => handleChoice('declined')} disabled={saving}>
+              Decline
+            </Button>
+            <Button onClick={() => handleChoice('accepted')} disabled={saving}>
+              Accept
+            </Button>
+          </div>
         </div>
       </div>
     </div>

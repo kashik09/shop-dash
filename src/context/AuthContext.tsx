@@ -1,120 +1,69 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { User, Session, AuthError } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabase'
-
-// ============================================
-// AUTH CONTEXT
-// ============================================
-//
-// Provides authentication state throughout the app.
-// Wrap your app with <AuthProvider> in main.tsx
-//
-// Usage:
-//   const { user, signIn, signUp, signOut } = useAuth()
-//
-// ============================================
+import {
+  AuthUser,
+  fetchCurrentUser,
+  loginUser,
+  logoutUser,
+  registerUser,
+} from '@/lib/api'
 
 interface AuthContextType {
-  user: User | null
-  session: Session | null
+  user: AuthUser | null
   loading: boolean
-  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
-  signUp: (email: string, password: string, name?: string) => Promise<{ error: AuthError | null }>
-  signInWithGoogle: () => Promise<{ error: AuthError | null }>
-  signInWithPhone: (phone: string) => Promise<{ error: AuthError | null }>
-  verifyOtp: (phone: string, token: string) => Promise<{ error: AuthError | null }>
+  signIn: (identifier: string, password: string) => Promise<{ error: string | null }>
+  signUp: (payload: { name: string; email?: string; phone?: string; password: string }) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
+  refresh: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
+  const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const refresh = async () => {
+    try {
+      const data = await fetchCurrentUser()
+      setUser(data)
+    } catch {
+      setUser(null)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
+    refresh()
   }, [])
 
-  // Email/Password Sign In
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    return { error }
+  const signIn = async (identifier: string, password: string) => {
+    try {
+      const data = await loginUser({ identifier, password })
+      setUser(data)
+      return { error: null }
+    } catch (err: any) {
+      return { error: err.message || 'Login failed' }
+    }
   }
 
-  // Email/Password Sign Up
-  const signUp = async (email: string, password: string, name?: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: name },
-      },
-    })
-    return { error }
+  const signUp = async (payload: { name: string; email?: string; phone?: string; password: string }) => {
+    try {
+      const data = await registerUser(payload)
+      setUser(data)
+      return { error: null }
+    } catch (err: any) {
+      return { error: err.message || 'Signup failed' }
+    }
   }
 
-  // Google OAuth Sign In
-  const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/`,
-      },
-    })
-    return { error }
-  }
-
-  // Phone OTP Sign In - sends OTP to phone
-  const signInWithPhone = async (phone: string) => {
-    const { error } = await supabase.auth.signInWithOtp({
-      phone,
-    })
-    return { error }
-  }
-
-  // Verify OTP
-  const verifyOtp = async (phone: string, token: string) => {
-    const { error } = await supabase.auth.verifyOtp({
-      phone,
-      token,
-      type: 'sms',
-    })
-    return { error }
-  }
-
-  // Sign Out
   const signOut = async () => {
-    await supabase.auth.signOut()
+    await logoutUser()
+    setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      loading,
-      signIn,
-      signUp,
-      signInWithGoogle,
-      signInWithPhone,
-      verifyOtp,
-      signOut,
-    }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, refresh }}>
       {children}
     </AuthContext.Provider>
   )
@@ -122,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider')
   }
   return context

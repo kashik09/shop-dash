@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/select'
 import { useAuth } from '@/context/AuthContext'
 import { useCart } from '@/context/CartContext'
-import { fetchShippingRates } from '@/lib/api'
+import { fetchMyPreferences, fetchShippingRates } from '@/lib/api'
 import { ShippingRate, formatPrice } from '@/types'
 
 export function Checkout() {
@@ -26,6 +26,7 @@ export function Checkout() {
   const [customerName, setCustomerName] = useState('')
   const [customerEmail, setCustomerEmail] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
+  const [prefLoaded, setPrefLoaded] = useState(false)
 
   const paymentReady = false
 
@@ -37,9 +38,32 @@ export function Checkout() {
     if (!user) return
 
     setCustomerEmail((prev) => prev || user.email || '')
-    setCustomerName((prev) => prev || user.user_metadata?.full_name || '')
+    setCustomerName((prev) => prev || user.name || '')
     setCustomerPhone((prev) => prev || user.phone || '')
   }, [user])
+
+  useEffect(() => {
+    const loadPreferences = async () => {
+      try {
+        const data = await fetchMyPreferences()
+        if (data?.shipping) {
+          setCustomerName((prev) => prev || data.shipping.name || '')
+          setCustomerPhone((prev) => prev || data.shipping.phone || '')
+          if (data.shipping.location) {
+            setSelectedLocation(data.shipping.location)
+          }
+        }
+      } catch {
+        // Ignore preference errors for now
+      } finally {
+        setPrefLoaded(true)
+      }
+    }
+
+    if (!prefLoaded) {
+      loadPreferences()
+    }
+  }, [prefLoaded])
 
   const loadShippingRates = async () => {
     try {

@@ -36,7 +36,7 @@ export interface Category {
 
 export interface Order {
   id: number
-  userId: string
+  userId: number
   items: CartItem[]
   total: number
   shippingFee: number

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/context/ThemeContext'
+import { useAdminAuth } from '@/context/AdminAuthContext'
 
 const navItems = [
   { path: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
@@ -28,6 +29,7 @@ interface AdminLayoutProps {
 export function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation()
   const { theme, toggleTheme } = useTheme()
+  const { admin, signOut } = useAdminAuth()
 
   const isActive = (path: string, exact?: boolean) => {
     if (exact) {
@@ -77,6 +79,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
         {/* Bottom Actions */}
         <div className="p-4 border-t space-y-2">
+          {admin && (
+            <div className="rounded-lg border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+              Signed in as <span className="font-medium text-foreground">{admin.name}</span>
+            </div>
+          )}
           <Button
             variant="ghost"
             className="w-full justify-start gap-3"
@@ -102,6 +109,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               Back to Store
             </Button>
           </Link>
+
+          <Button variant="ghost" className="w-full justify-start gap-3" onClick={signOut}>
+            Sign Out
+          </Button>
         </div>
       </aside>
 

@@ -132,6 +132,21 @@ export function Cart() {
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                  Items
+                </p>
+                <div className="space-y-2">
+                  {items.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between text-sm">
+                      <span className="truncate text-muted-foreground">
+                        {item.name}
+                      </span>
+                      <span className="font-medium text-foreground">x{item.quantity}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
               <div className="border-t pt-4 space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>

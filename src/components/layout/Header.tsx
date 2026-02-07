@@ -47,20 +47,6 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link to="/login">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <LogIn className="h-4 w-4" />
-              <span className="hidden sm:inline">Login</span>
-            </Button>
-          </Link>
-
-          <Link to="/signup">
-            <Button size="sm" className="gap-2">
-              <UserPlus className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign Up</span>
-            </Button>
-          </Link>
-
           <Button
             variant="ghost"
             size="icon"
@@ -85,6 +71,20 @@ export function Header() {
                   {itemCount}
                 </Badge>
               )}
+            </Button>
+          </Link>
+
+          <Link to="/login">
+            <Button variant="ghost" size="sm" className="gap-2">
+              <LogIn className="h-4 w-4" />
+              <span className="hidden sm:inline">Login</span>
+            </Button>
+          </Link>
+
+          <Link to="/signup">
+            <Button size="sm" className="gap-2">
+              <UserPlus className="h-4 w-4" />
+              <span className="hidden sm:inline">Sign Up</span>
             </Button>
           </Link>
         </div>

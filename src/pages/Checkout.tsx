@@ -18,15 +18,32 @@ import { fetchMyPreferences, fetchShippingRates } from '@/lib/api'
 import { ShippingRate, formatPrice } from '@/types'
 
 export function Checkout() {
+  const CHECKOUT_STORAGE_KEY = 'checkout_draft'
+  const readDraft = () => {
+    if (typeof window === 'undefined') return null
+    try {
+      const raw = localStorage.getItem(CHECKOUT_STORAGE_KEY)
+      if (!raw) return null
+      return JSON.parse(raw)
+    } catch {
+      return null
+    }
+  }
+
+  const draft = readDraft()
   const { items, total, itemCount } = useCart()
   const { user } = useAuth()
   const [shippingRates, setShippingRates] = useState<ShippingRate[]>([])
-  const [selectedLocation, setSelectedLocation] = useState('')
+  const [selectedLocation, setSelectedLocation] = useState(draft?.selectedLocation || '')
   const [shippingFee, setShippingFee] = useState(0)
-  const [customerName, setCustomerName] = useState('')
-  const [contactMethod, setContactMethod] = useState<'phone' | 'email'>('phone')
-  const [customerEmail, setCustomerEmail] = useState('')
-  const [customerPhone, setCustomerPhone] = useState('')
+  const [customerName, setCustomerName] = useState(draft?.customerName || '')
+  const [contactMethod, setContactMethod] = useState<'phone' | 'email'>(
+    draft?.contactMethod === 'email' || draft?.contactMethod === 'phone'
+      ? draft.contactMethod
+      : 'phone'
+  )
+  const [customerEmail, setCustomerEmail] = useState(draft?.customerEmail || '')
+  const [customerPhone, setCustomerPhone] = useState(draft?.customerPhone || '')
   const [prefLoaded, setPrefLoaded] = useState(false)
 
   const paymentReady = false
@@ -50,7 +67,7 @@ export function Checkout() {
         if (data?.shipping) {
           setCustomerName((prev) => prev || data.shipping.name || '')
           setCustomerPhone((prev) => prev || data.shipping.phone || '')
-          if (data.shipping.location) {
+          if (!selectedLocation && data.shipping.location) {
             setSelectedLocation(data.shipping.location)
           }
         }
@@ -70,9 +87,8 @@ export function Checkout() {
     try {
       const data = await fetchShippingRates()
       setShippingRates(data)
-      if (data.length > 0) {
+      if (!selectedLocation && data.length > 0) {
         setSelectedLocation(data[0].location)
-        setShippingFee(data[0].fee)
       }
     } catch {
       const fallback = [
@@ -81,15 +97,14 @@ export function Checkout() {
         { id: 3, location: 'Jinja', fee: 8000 },
       ]
       setShippingRates(fallback)
-      setSelectedLocation(fallback[0].location)
-      setShippingFee(fallback[0].fee)
+      if (!selectedLocation) {
+        setSelectedLocation(fallback[0].location)
+      }
     }
   }
 
   const handleLocationChange = (location: string) => {
     setSelectedLocation(location)
-    const rate = shippingRates.find((r) => r.location === location)
-    setShippingFee(rate?.fee || 0)
   }
 
   useEffect(() => {
@@ -101,6 +116,28 @@ export function Checkout() {
       setContactMethod('email')
     }
   }, [customerPhone, customerEmail])
+
+  useEffect(() => {
+    if (!selectedLocation) return
+    const rate = shippingRates.find((r) => r.location === selectedLocation)
+    setShippingFee(rate?.fee || 0)
+  }, [shippingRates, selectedLocation])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const payload = {
+      contactMethod,
+      customerName,
+      customerEmail,
+      customerPhone,
+      selectedLocation,
+    }
+    try {
+      localStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(payload))
+    } catch {
+      // Ignore storage errors
+    }
+  }, [contactMethod, customerName, customerEmail, customerPhone, selectedLocation])
 
   const grandTotal = total + shippingFee
 

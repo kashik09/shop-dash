@@ -105,3 +105,11 @@ Data viewer (read-only)
 - JSON data lives in `server/data`.
 - Admin security uses httpOnly cookies, CSRF protection, audit logs, and session rotation.
 - Encrypted fields require a stable `DATA_ENCRYPTION_KEY`.
+
+## Docs
+- `docs/ARCHITECTURE.md`
+- `docs/DEPLOYMENT.md`
+- `docs/API.md`
+- `docs/SECURITY_OVERVIEW.md`
+- `docs/DATA_STORAGE.md`
+- `docs/ENV.md`

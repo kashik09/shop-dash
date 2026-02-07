@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest'
 import App from '../App'
 
@@ -84,6 +84,8 @@ describe('ShopDash app', () => {
   it('shows password guidance and visibility toggles on signup', () => {
     window.history.pushState({}, '', '/signup')
     render(<App />)
+    const passwordInput = screen.getByLabelText(/^password$/i)
+    fireEvent.focus(passwordInput)
     expect(screen.getByText(/at least 8 characters/i)).toBeInTheDocument()
     expect(screen.getByText(/one uppercase letter/i)).toBeInTheDocument()
     expect(screen.getAllByLabelText(/show password/i).length).toBeGreaterThan(0)

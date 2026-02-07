@@ -3,12 +3,15 @@ import { readData, writeData, getNextId } from '../utils/db.js'
 import { hashPassword } from '../utils/auth.js'
 import { requireSuperAdmin } from '../middleware/auth.js'
 import { logAudit } from '../utils/audit.js'
+import { isEmail, isNonEmptyString } from '../utils/validation.js'
 
 const router = Router()
 router.use((req, res, next) => {
   if (req.method === 'GET' || req.method === 'HEAD') return next()
   return requireSuperAdmin(req, res, next)
 })
+
+const allowedRoles = new Set(['admin', 'super_admin'])
 
 // GET all admins
 router.get('/', (req, res) => {
@@ -34,6 +37,9 @@ router.get('/:id', (req, res) => {
 // GET admin by email
 router.get('/email/:email', (req, res) => {
   const admins = readData('admins')
+  if (!isEmail(req.params.email)) {
+    return res.status(400).json({ error: 'Invalid email address' })
+  }
   const admin = admins.find(a => a.email === req.params.email)
 
   if (!admin) {
@@ -49,8 +55,24 @@ router.post('/', async (req, res) => {
   const admins = readData('admins')
 
   // Check if email already exists
+  if (!isNonEmptyString(req.body?.name) || !isNonEmptyString(req.body?.email)) {
+    return res.status(400).json({ error: 'Name and email are required' })
+  }
+
+  if (!isEmail(req.body.email)) {
+    return res.status(400).json({ error: 'Invalid email address' })
+  }
+
   if (admins.find(a => a.email === req.body.email)) {
     return res.status(400).json({ error: 'Email already registered' })
+  }
+
+  if (req.body.role && !allowedRoles.has(req.body.role)) {
+    return res.status(400).json({ error: 'Invalid admin role' })
+  }
+
+  if (req.body.password && String(req.body.password).length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters' })
   }
 
   const newAdmin = {
@@ -92,6 +114,16 @@ router.put('/:id', (req, res) => {
     return res.status(404).json({ error: 'Admin not found' })
   }
 
+  if (req.body?.email && !isEmail(req.body.email)) {
+    return res.status(400).json({ error: 'Invalid email address' })
+  }
+  if (req.body?.name && !isNonEmptyString(req.body.name)) {
+    return res.status(400).json({ error: 'Invalid name' })
+  }
+  if (req.body?.role && !allowedRoles.has(req.body.role)) {
+    return res.status(400).json({ error: 'Invalid admin role' })
+  }
+
   admins[index] = { ...admins[index], ...req.body }
   writeData('admins', admins)
 
@@ -116,6 +148,16 @@ router.patch('/:id', (req, res) => {
 
   if (index === -1) {
     return res.status(404).json({ error: 'Admin not found' })
+  }
+
+  if (req.body?.email && !isEmail(req.body.email)) {
+    return res.status(400).json({ error: 'Invalid email address' })
+  }
+  if (req.body?.name && !isNonEmptyString(req.body.name)) {
+    return res.status(400).json({ error: 'Invalid name' })
+  }
+  if (req.body?.role && !allowedRoles.has(req.body.role)) {
+    return res.status(400).json({ error: 'Invalid admin role' })
   }
 
   admins[index] = { ...admins[index], ...req.body }

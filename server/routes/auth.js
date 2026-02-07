@@ -10,6 +10,7 @@ import {
 } from '../utils/crypto.js'
 import { comparePassword, getCookieOptions, hashPassword, signUserToken } from '../utils/auth.js'
 import { requireUser } from '../middleware/auth.js'
+import { isNonEmptyString, isEmail, isPhone, validateEmailOrPhone } from '../utils/validation.js'
 
 const router = Router()
 
@@ -42,7 +43,7 @@ const defaultPreferences = {
 router.post('/signup', async (req, res) => {
   const { name, email, phone, password } = req.body || {}
 
-  if (!name || !password) {
+  if (!isNonEmptyString(name) || !isNonEmptyString(password)) {
     return res.status(400).json({ error: 'Name and password are required' })
   }
 
@@ -52,6 +53,14 @@ router.post('/signup', async (req, res) => {
 
   if (password.length < 6) {
     return res.status(400).json({ error: 'Password must be at least 6 characters' })
+  }
+
+  if (email && !isEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email address' })
+  }
+
+  if (phone && !isPhone(phone)) {
+    return res.status(400).json({ error: 'Invalid phone number' })
   }
 
   const users = readData('users') || []
@@ -111,25 +120,30 @@ router.post('/login', async (req, res) => {
   const { email, phone, password, identifier } = req.body || {}
 
   const rawIdentifier = identifier || email || phone
-  if (!rawIdentifier || !password) {
+  if (!isNonEmptyString(rawIdentifier) || !isNonEmptyString(password)) {
     return res.status(400).json({ error: 'Email or phone and password are required' })
   }
 
+  const validation = validateEmailOrPhone(rawIdentifier)
+  if (!validation.ok) {
+    return res.status(400).json({ error: validation.error })
+  }
+
   const users = readData('users') || []
-  const isEmail = rawIdentifier.includes('@')
-  const normalizedIdentifier = isEmail
+  const isEmailIdentifier = rawIdentifier.includes('@')
+  const normalizedIdentifier = isEmailIdentifier
     ? normalizeEmail(rawIdentifier)
     : normalizePhone(rawIdentifier)
   const hash = hashValue(normalizedIdentifier)
 
-  let user = users.find((u) => (isEmail ? u.emailHash === hash : u.phoneHash === hash))
+  let user = users.find((u) => (isEmailIdentifier ? u.emailHash === hash : u.phoneHash === hash))
 
   if (!user) {
     user = users.find((u) => {
-      if (isEmail && u.email) {
+      if (isEmailIdentifier && u.email) {
         return decryptField(u.email) === normalizedIdentifier
       }
-      if (!isEmail && u.phone) {
+      if (!isEmailIdentifier && u.phone) {
         return decryptField(u.phone) === normalizedIdentifier
       }
       return false

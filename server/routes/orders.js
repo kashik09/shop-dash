@@ -4,6 +4,7 @@ import { sendOrderConfirmation, sendShippingUpdate } from '../utils/resend.js'
 import { encryptField, decryptField } from '../utils/crypto.js'
 import { logAudit } from '../utils/audit.js'
 import { requireAdmin, requireUser } from '../middleware/auth.js'
+import { isEmail, isNonEmptyString, isPhone, parseInteger, parseNumber } from '../utils/validation.js'
 
 const router = Router()
 
@@ -22,6 +23,70 @@ const decryptOrder = (order) => ({
   customerPhone: order.customerPhone ? decryptField(order.customerPhone) : null,
   location: order.location ? decryptField(order.location) : null,
 })
+
+const validateOrderPayload = (payload) => {
+  if (!isNonEmptyString(payload?.customerName)) {
+    return { ok: false, error: 'Customer name is required' }
+  }
+
+  if (!payload?.customerEmail && !payload?.customerPhone) {
+    return { ok: false, error: 'Customer email or phone is required' }
+  }
+
+  if (payload.customerEmail && !isEmail(payload.customerEmail)) {
+    return { ok: false, error: 'Invalid customer email' }
+  }
+
+  if (payload.customerPhone && !isPhone(payload.customerPhone)) {
+    return { ok: false, error: 'Invalid customer phone' }
+  }
+
+  if (!isNonEmptyString(payload?.location)) {
+    return { ok: false, error: 'Delivery location is required' }
+  }
+
+  if (!Array.isArray(payload?.items) || payload.items.length === 0) {
+    return { ok: false, error: 'Order items are required' }
+  }
+
+  for (const item of payload.items) {
+    const itemId = parseInteger(item?.id)
+    if (itemId === null) {
+      return { ok: false, error: 'Invalid item id' }
+    }
+    if (!isNonEmptyString(item?.name)) {
+      return { ok: false, error: 'Invalid item name' }
+    }
+    const price = parseNumber(item?.price)
+    if (price === null || price < 0) {
+      return { ok: false, error: 'Invalid item price' }
+    }
+    const quantity = parseInteger(item?.quantity)
+    if (quantity === null || quantity < 1) {
+      return { ok: false, error: 'Invalid item quantity' }
+    }
+  }
+
+  const subtotal = parseNumber(payload?.subtotal)
+  const shippingFee = parseNumber(payload?.shippingFee)
+  const total = parseNumber(payload?.total)
+
+  if (subtotal === null || subtotal < 0) {
+    return { ok: false, error: 'Invalid subtotal' }
+  }
+
+  if (shippingFee === null || shippingFee < 0) {
+    return { ok: false, error: 'Invalid shipping fee' }
+  }
+
+  if (total === null || total < 0) {
+    return { ok: false, error: 'Invalid total amount' }
+  }
+
+  return { ok: true }
+}
+
+const allowedStatuses = new Set(['pending', 'confirmed', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'])
 
 // GET all orders
 router.get('/', requireAdmin, (req, res) => {
@@ -57,6 +122,11 @@ router.get('/:id', requireAdmin, (req, res) => {
 router.post('/', requireUser, async (req, res) => {
   const orders = readData('orders')
   const settings = readData('settings')
+
+  const validation = validateOrderPayload(req.body || {})
+  if (!validation.ok) {
+    return res.status(400).json({ error: validation.error })
+  }
   
   const newOrder = {
     id: getNextId(orders),
@@ -99,6 +169,34 @@ router.patch('/:id', requireAdmin, async (req, res) => {
     return res.status(404).json({ error: 'Order not found' })
   }
   
+  if (req.body?.status && !allowedStatuses.has(req.body.status)) {
+    return res.status(400).json({ error: 'Invalid order status' })
+  }
+
+  if (req.body?.subtotal !== undefined) {
+    const subtotal = parseNumber(req.body.subtotal)
+    if (subtotal === null || subtotal < 0) {
+      return res.status(400).json({ error: 'Invalid subtotal' })
+    }
+    req.body.subtotal = subtotal
+  }
+
+  if (req.body?.shippingFee !== undefined) {
+    const shippingFee = parseNumber(req.body.shippingFee)
+    if (shippingFee === null || shippingFee < 0) {
+      return res.status(400).json({ error: 'Invalid shipping fee' })
+    }
+    req.body.shippingFee = shippingFee
+  }
+
+  if (req.body?.total !== undefined) {
+    const total = parseNumber(req.body.total)
+    if (total === null || total < 0) {
+      return res.status(400).json({ error: 'Invalid total amount' })
+    }
+    req.body.total = total
+  }
+
   const oldStatus = orders[index].status
   orders[index] = { ...orders[index], ...req.body }
   writeData('orders', orders)

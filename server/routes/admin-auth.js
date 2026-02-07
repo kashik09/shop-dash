@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { readData, writeData } from '../utils/db.js'
 import { logAudit } from '../utils/audit.js'
 import { comparePassword, getCookieOptions, hashPassword, signAdminToken, verifyAdminToken } from '../utils/auth.js'
+import { isEmail, isNonEmptyString } from '../utils/validation.js'
 
 const router = Router()
 
@@ -17,8 +18,12 @@ const toSafeAdmin = (admin) => ({
 router.post('/login', async (req, res) => {
   const { email, password } = req.body || {}
 
-  if (!email || !password) {
+  if (!isNonEmptyString(email) || !isNonEmptyString(password)) {
     return res.status(400).json({ error: 'Email and password are required' })
+  }
+
+  if (!isEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email address' })
   }
 
   const admins = readData('admins') || []

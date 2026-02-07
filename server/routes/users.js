@@ -3,6 +3,7 @@ import { readData, writeData, getNextId } from '../utils/db.js'
 import { decryptField, encryptField, hashValue, normalizeEmail, normalizePhone } from '../utils/crypto.js'
 import { hashPassword } from '../utils/auth.js'
 import { logAudit } from '../utils/audit.js'
+import { isEmail, isPhone, isNonEmptyString } from '../utils/validation.js'
 
 const router = Router()
 
@@ -39,6 +40,9 @@ router.get('/:id', (req, res) => {
 // GET user by email
 router.get('/email/:email', (req, res) => {
   const users = readData('users')
+  if (!isEmail(req.params.email)) {
+    return res.status(400).json({ error: 'Invalid email address' })
+  }
   const normalized = normalizeEmail(req.params.email)
   const emailHash = hashValue(normalized)
   const user = users.find(u => u.emailHash === emailHash) || users.find((u) => {
@@ -60,6 +64,23 @@ router.post('/', async (req, res) => {
   // Check if email already exists
   const normalizedEmail = req.body.email ? normalizeEmail(req.body.email) : null
   const normalizedPhone = req.body.phone ? normalizePhone(req.body.phone) : null
+
+  if (!isNonEmptyString(req.body?.name)) {
+    return res.status(400).json({ error: 'Name is required' })
+  }
+
+  if (!normalizedEmail && !normalizedPhone) {
+    return res.status(400).json({ error: 'Email or phone is required' })
+  }
+
+  if (normalizedEmail && !isEmail(req.body.email)) {
+    return res.status(400).json({ error: 'Invalid email address' })
+  }
+
+  if (normalizedPhone && !isPhone(req.body.phone)) {
+    return res.status(400).json({ error: 'Invalid phone number' })
+  }
+
   const emailHash = normalizedEmail ? hashValue(normalizedEmail) : null
   const phoneHash = normalizedPhone ? hashValue(normalizedPhone) : null
 
@@ -82,6 +103,9 @@ router.post('/', async (req, res) => {
   }
 
   if (req.body.password) {
+    if (String(req.body.password).length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' })
+    }
     newUser.passwordHash = await hashPassword(req.body.password)
   }
 
@@ -111,7 +135,13 @@ router.put('/:id', (req, res) => {
   }
 
   const updates = { ...req.body }
+  if (updates.name && !isNonEmptyString(updates.name)) {
+    return res.status(400).json({ error: 'Invalid name' })
+  }
   if (updates.email) {
+    if (!isEmail(updates.email)) {
+      return res.status(400).json({ error: 'Invalid email address' })
+    }
     const normalized = normalizeEmail(updates.email)
     const emailHash = hashValue(normalized)
     const duplicate = users.find((u) => u.emailHash === emailHash && u.id !== users[index].id)
@@ -122,6 +152,9 @@ router.put('/:id', (req, res) => {
     updates.emailHash = emailHash
   }
   if (updates.phone) {
+    if (!isPhone(updates.phone)) {
+      return res.status(400).json({ error: 'Invalid phone number' })
+    }
     const normalized = normalizePhone(updates.phone)
     const phoneHash = hashValue(normalized)
     const duplicate = users.find((u) => u.phoneHash === phoneHash && u.id !== users[index].id)
@@ -158,7 +191,13 @@ router.patch('/:id', (req, res) => {
   }
 
   const updates = { ...req.body }
+  if (updates.name && !isNonEmptyString(updates.name)) {
+    return res.status(400).json({ error: 'Invalid name' })
+  }
   if (updates.email) {
+    if (!isEmail(updates.email)) {
+      return res.status(400).json({ error: 'Invalid email address' })
+    }
     const normalized = normalizeEmail(updates.email)
     const emailHash = hashValue(normalized)
     const duplicate = users.find((u) => u.emailHash === emailHash && u.id !== users[index].id)
@@ -169,6 +208,9 @@ router.patch('/:id', (req, res) => {
     updates.emailHash = emailHash
   }
   if (updates.phone) {
+    if (!isPhone(updates.phone)) {
+      return res.status(400).json({ error: 'Invalid phone number' })
+    }
     const normalized = normalizePhone(updates.phone)
     const phoneHash = hashValue(normalized)
     const duplicate = users.find((u) => u.phoneHash === phoneHash && u.id !== users[index].id)

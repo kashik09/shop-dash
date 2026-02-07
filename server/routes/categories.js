@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { readData, writeData, getNextId } from '../utils/db.js'
 import { requireAdminForWrite } from '../middleware/auth.js'
 import { logAudit } from '../utils/audit.js'
+import { isNonEmptyString, toTrimmedString } from '../utils/validation.js'
 
 const router = Router()
 router.use(requireAdminForWrite)
@@ -12,7 +13,16 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res) => {
   const categories = readData('categories')
-  const newCategory = { id: getNextId(categories), ...req.body }
+
+  if (!isNonEmptyString(req.body?.name) || !isNonEmptyString(req.body?.label)) {
+    return res.status(400).json({ error: 'Category name and label are required' })
+  }
+
+  const newCategory = {
+    id: getNextId(categories),
+    name: toTrimmedString(req.body.name),
+    label: toTrimmedString(req.body.label),
+  }
   categories.push(newCategory)
   writeData('categories', categories)
 

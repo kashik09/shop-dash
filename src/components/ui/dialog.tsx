@@ -3,7 +3,59 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-const Dialog = DialogPrimitive.Root
+type DialogProps = React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root>
+
+let openDialogCount = 0
+
+const updateRootInert = (shouldInert: boolean) => {
+  if (typeof document === "undefined") return
+  const root = document.getElementById("root")
+  if (!root) return
+  if (shouldInert) {
+    root.setAttribute("inert", "")
+  } else {
+    root.removeAttribute("inert")
+  }
+}
+
+const Dialog = ({ onOpenChange, open, defaultOpen, ...props }: DialogProps) => {
+  const openRef = React.useRef(false)
+
+  React.useEffect(() => {
+    const initialOpen = Boolean(open ?? defaultOpen)
+    if (initialOpen && !openRef.current) {
+      openRef.current = true
+      openDialogCount += 1
+      updateRootInert(openDialogCount > 0)
+    }
+
+    return () => {
+      if (openRef.current) {
+        openRef.current = false
+        openDialogCount = Math.max(0, openDialogCount - 1)
+        updateRootInert(openDialogCount > 0)
+      }
+    }
+  }, [open, defaultOpen])
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen !== openRef.current) {
+      openRef.current = nextOpen
+      openDialogCount = Math.max(0, openDialogCount + (nextOpen ? 1 : -1))
+      updateRootInert(openDialogCount > 0)
+    }
+    onOpenChange?.(nextOpen)
+  }
+
+  return (
+    <DialogPrimitive.Root
+      open={open}
+      defaultOpen={defaultOpen}
+      onOpenChange={handleOpenChange}
+      {...props}
+    />
+  )
+}
 const DialogTrigger = DialogPrimitive.Trigger
 const DialogPortal = DialogPrimitive.Portal
 const DialogClose = DialogPrimitive.Close

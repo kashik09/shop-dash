@@ -103,8 +103,8 @@ router.post('/', async (req, res) => {
   }
 
   if (req.body.password) {
-    if (String(req.body.password).length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' })
+    if (String(req.body.password).length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters' })
     }
     newUser.passwordHash = await hashPassword(req.body.password)
   }

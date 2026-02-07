@@ -48,6 +48,12 @@ Required
 - `ADMIN_JWT_SECRET` - admin session signing key
 - `DATA_ENCRYPTION_KEY` - 32-byte hex/base64 key for encrypting PII
 
+Generate the required secrets with:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+Run it three times and paste the outputs into the three variables above.
+
 Recommended
 - `ADMIN_BOOTSTRAP_PASSWORD` - one-time bootstrap password for first admin login
 - `CORS_ORIGIN` - comma-separated allowed origins for the API

@@ -18,6 +18,7 @@ import adminAuthRouter from './routes/admin-auth.js'
 import meRouter from './routes/me.js'
 import csrfRouter from './routes/csrf.js'
 import { requireAdmin } from './middleware/auth.js'
+import { requireAdminOrigin } from './middleware/admin-origin.js'
 
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -73,12 +74,12 @@ app.use('/api/orders', ordersRouter)
 app.use('/api/shipping', shippingRouter)
 app.use('/api/shippingRates', shippingRouter)
 app.use('/api/settings', settingsRouter)
-app.use('/api/users', requireAdmin, usersRouter)
-app.use('/api/admins', requireAdmin, adminsRouter)
+app.use('/api/users', requireAdminOrigin, requireAdmin, usersRouter)
+app.use('/api/admins', requireAdminOrigin, requireAdmin, adminsRouter)
 app.use('/api/consents', consentsRouter)
 app.use('/api/csrf', csrfRouter)
 app.use('/api/auth', authLimiter, authRouter)
-app.use('/api/admin-auth', authLimiter, adminAuthRouter)
+app.use('/api/admin-auth', requireAdminOrigin, authLimiter, adminAuthRouter)
 app.use('/api/me', meRouter)
 
 // Health check

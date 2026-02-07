@@ -122,4 +122,32 @@ export async function sendLowStockAlert(product, adminEmail) {
   }
 }
 
+/**
+ * Send admin security alert email
+ */
+export async function sendAdminAlert(adminEmail, subject, message) {
+  try {
+    if (!resend) {
+      warnMissingKey()
+      return { success: false, error: 'RESEND_API_KEY is missing' }
+    }
+
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: adminEmail,
+      subject: `Admin Alert: ${subject}`,
+      html: `
+        <h1>Admin Security Alert</h1>
+        <p>${message}</p>
+        <p>Timestamp: ${new Date().toISOString()}</p>
+      `,
+    })
+
+    if (error) return { success: false, error }
+    return { success: true, data }
+  } catch (err) {
+    return { success: false, error: err.message }
+  }
+}
+
 export default resend

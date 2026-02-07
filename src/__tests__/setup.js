@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/vitest'
 import 'whatwg-fetch' // Required for CodeGrade
 import { Blob } from 'node:buffer' // Fix for Node 16 issues
 
-if (!window.matchMedia) {
+if (typeof window !== 'undefined' && !window.matchMedia) {
   window.matchMedia = (query) => ({
     matches: false,
     media: query,

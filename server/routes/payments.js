@@ -31,6 +31,7 @@ router.post('/flutterwave/uganda', requireUser, async (req, res) => {
   if (!isPhone(phoneRaw)) {
     return res.status(400).json({ error: 'Invalid phone number' })
   }
+  const phoneNumber = phoneRaw.replace(/[\s()-]/g, '')
 
   const networkRaw = toTrimmedString(req.body?.network).toUpperCase()
   if (!allowedNetworks.has(networkRaw)) {
@@ -60,7 +61,7 @@ router.post('/flutterwave/uganda', requireUser, async (req, res) => {
       amount,
       currency: 'UGX',
       email,
-      phone_number: phoneRaw,
+      phone_number: phoneNumber,
       network: networkRaw,
       fullname: customerName,
       meta: {

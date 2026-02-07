@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from '@/context/ThemeContext'
 import { CartProvider } from '@/context/CartContext'
 import { Layout } from '@/components/layout/Layout'
+import { AdminLayout } from '@/components/layout/AdminLayout'
 import { Home } from '@/pages/Home'
 import { Products } from '@/pages/Products'
 import { ProductDetail } from '@/pages/ProductDetail'
@@ -13,15 +14,16 @@ function App() {
     <BrowserRouter>
       <ThemeProvider>
         <CartProvider>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/products/:id" element={<ProductDetail />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/admin" element={<Admin />} />
-            </Routes>
-          </Layout>
+          <Routes>
+            {/* Store Routes */}
+            <Route element={<Layout><Home /></Layout>} path="/" />
+            <Route element={<Layout><Products /></Layout>} path="/products" />
+            <Route element={<Layout><ProductDetail /></Layout>} path="/products/:id" />
+            <Route element={<Layout><Cart /></Layout>} path="/cart" />
+
+            {/* Admin Routes */}
+            <Route path="/admin/*" element={<AdminLayout><Admin /></AdminLayout>} />
+          </Routes>
         </CartProvider>
       </ThemeProvider>
     </BrowserRouter>

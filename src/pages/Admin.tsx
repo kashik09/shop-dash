@@ -243,16 +243,11 @@ export function Admin() {
   const outOfStockCount = products.length - inStockCount
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="p-8">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-          <Settings className="h-6 w-6 text-primary-foreground" />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage your store</p>
-        </div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <p className="text-muted-foreground">Overview of your store</p>
       </div>
 
       {/* Stats */}

@@ -143,6 +143,10 @@ export interface StoreSettings {
     orderConfirmation: boolean
     shippingUpdates: boolean
   }
+  cookies: {
+    enabled: boolean
+    requireConsent: boolean
+  }
 }
 
 export async function fetchSettings(): Promise<StoreSettings> {
@@ -178,5 +182,29 @@ export async function updateNotificationSettings(data: Partial<StoreSettings['no
     body: JSON.stringify(data),
   })
   if (!res.ok) throw new Error('Failed to update notification settings')
+  return res.json()
+}
+
+export async function updateCookieSettings(data: Partial<StoreSettings['cookies']>) {
+  const res = await fetch(`${API_URL}/settings/cookies`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) throw new Error('Failed to update cookie settings')
+  return res.json()
+}
+
+export async function upsertCookieConsent(data: {
+  consentId: string
+  status: 'accepted' | 'declined'
+  email?: string | null
+}) {
+  const res = await fetch(`${API_URL}/consents`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) throw new Error('Failed to store cookie consent')
   return res.json()
 }

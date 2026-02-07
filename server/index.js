@@ -9,6 +9,7 @@ import shippingRouter from './routes/shipping.js'
 import settingsRouter from './routes/settings.js'
 import usersRouter from './routes/users.js'
 import adminsRouter from './routes/admins.js'
+import consentsRouter from './routes/consents.js'
 
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -32,6 +33,7 @@ app.use('/api/shippingRates', shippingRouter)
 app.use('/api/settings', settingsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/admins', adminsRouter)
+app.use('/api/consents', consentsRouter)
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -64,6 +66,7 @@ app.listen(PORT, () => {
   - /api/settings
   - /api/users
   - /api/admins
+  - /api/consents
   - /api/health
   ====================================
   `)

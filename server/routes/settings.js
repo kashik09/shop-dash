@@ -28,4 +28,11 @@ router.patch('/store', (req, res) => {
   res.json(settings.store)
 })
 
+router.patch('/cookies', (req, res) => {
+  const settings = readData('settings')
+  settings.cookies = { ...settings.cookies, ...req.body }
+  writeData('settings', settings)
+  res.json(settings.cookies)
+})
+
 export default router

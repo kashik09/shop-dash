@@ -29,6 +29,10 @@ const defaultSettings: StoreSettings = {
     orderConfirmation: true,
     shippingUpdates: true,
   },
+  cookies: {
+    enabled: true,
+    requireConsent: true,
+  },
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined)
@@ -40,7 +44,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const loadSettings = async () => {
     try {
       const data = await fetchSettings()
-      setSettings(data)
+      setSettings({ ...defaultSettings, ...data })
     } catch {
       setSettings(defaultSettings)
     } finally {

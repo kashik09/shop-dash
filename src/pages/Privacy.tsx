@@ -86,8 +86,9 @@ export function Privacy() {
           <h2 className="text-xl font-semibold mb-3">7. Cookies</h2>
           <p className="text-muted-foreground leading-relaxed">
             We use cookies and similar tracking technologies to enhance your browsing experience.
-            You can choose to disable cookies through your browser settings, but this may affect
-            some features of our website.
+            Cookie usage is managed in our admin settings, and when you accept or decline we record
+            that choice in our database. You can also disable cookies through your browser settings,
+            but this may affect some features of our website.
           </p>
         </section>
 

@@ -9,6 +9,7 @@ import {
   fetchSettings,
   updateStoreSettings,
   updateNotificationSettings,
+  updateCookieSettings,
   StoreSettings,
 } from '@/lib/api'
 import { useSettings } from '@/context/SettingsContext'
@@ -26,7 +27,10 @@ export function AdminSettings() {
   const loadSettings = async () => {
     try {
       const data = await fetchSettings()
-      setSettings(data)
+      setSettings({
+        ...data,
+        cookies: data.cookies ?? { enabled: true, requireConsent: true },
+      })
     } catch (err) {
       console.error('Failed to load settings:', err)
     } finally {
@@ -59,6 +63,18 @@ export function AdminSettings() {
     }
   }
 
+  const handleSaveCookies = async () => {
+    if (!settings) return
+    setSaving(true)
+    try {
+      await updateCookieSettings(settings.cookies)
+    } catch (err) {
+      console.error('Failed to save cookies:', err)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const updateStore = (field: string, value: string) => {
     if (!settings) return
     setSettings({
@@ -80,6 +96,14 @@ export function AdminSettings() {
     setSettings({
       ...settings,
       notifications: { ...settings.notifications, [field]: value },
+    })
+  }
+
+  const updateCookies = (field: string, value: boolean) => {
+    if (!settings) return
+    setSettings({
+      ...settings,
+      cookies: { ...settings.cookies, [field]: value },
     })
   }
 
@@ -265,6 +289,40 @@ export function AdminSettings() {
             <Button onClick={handleSaveNotifications} disabled={saving} className="gap-2">
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               Save Notifications
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Cookie Controls */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Cookie Controls</CardTitle>
+            <CardDescription>Manage cookie usage and consent banner</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Enable Cookies</Label>
+                <p className="text-sm text-muted-foreground">Allow the site to set cookies</p>
+              </div>
+              <Switch
+                checked={settings.cookies.enabled}
+                onCheckedChange={(checked) => updateCookies('enabled', checked)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Require Consent</Label>
+                <p className="text-sm text-muted-foreground">Show consent banner before storing cookies</p>
+              </div>
+              <Switch
+                checked={settings.cookies.requireConsent}
+                onCheckedChange={(checked) => updateCookies('requireConsent', checked)}
+              />
+            </div>
+            <Button onClick={handleSaveCookies} disabled={saving} className="gap-2">
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              Save Cookie Settings
             </Button>
           </CardContent>
         </Card>

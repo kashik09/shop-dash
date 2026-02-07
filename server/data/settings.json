@@ -18,5 +18,9 @@
     "lowStockAlert": true,
     "orderConfirmation": true,
     "shippingUpdates": true
+  },
+  "cookies": {
+    "enabled": true,
+    "requireConsent": true
   }
 }

@@ -1,11 +1,65 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, Package } from 'lucide-react'
+import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, Package, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useCart } from '@/context/CartContext'
+import { fetchShippingRates } from '@/lib/api'
+import { ShippingRate } from '@/types'
 
 export function Cart() {
   const { items, removeFromCart, updateQuantity, clearCart, total, itemCount } = useCart()
+  const [shippingRates, setShippingRates] = useState<ShippingRate[]>([])
+  const [selectedLocation, setSelectedLocation] = useState<string>('')
+  const [shippingFee, setShippingFee] = useState<number>(0)
+
+  useEffect(() => {
+    loadShippingRates()
+  }, [])
+
+  const loadShippingRates = async () => {
+    try {
+      const data = await fetchShippingRates()
+      setShippingRates(data)
+      // Default to first location (usually free shipping in capital)
+      if (data.length > 0) {
+        setSelectedLocation(data[0].location)
+        setShippingFee(data[0].fee)
+      }
+    } catch {
+      // Fallback data
+      const fallback = [
+        { id: 1, location: 'Kampala', fee: 0 },
+        { id: 2, location: 'Entebbe', fee: 5000 },
+        { id: 3, location: 'Jinja', fee: 8000 },
+      ]
+      setShippingRates(fallback)
+      setSelectedLocation(fallback[0].location)
+      setShippingFee(fallback[0].fee)
+    }
+  }
+
+  const handleLocationChange = (location: string) => {
+    setSelectedLocation(location)
+    const rate = shippingRates.find((r) => r.location === location)
+    setShippingFee(rate?.fee || 0)
+  }
+
+  // Parse total to number for calculation
+  const parsePrice = (price: string): number => {
+    return parseFloat(price.replace(/[^0-9.]/g, '')) || 0
+  }
+
+  const subtotalNum = parsePrice(total)
+  const grandTotal = subtotalNum + shippingFee
 
   if (items.length === 0) {
     return (
@@ -133,18 +187,46 @@ export function Cart() {
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span>{total}</span>
+              {/* Shipping Location Selector */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  Delivery Location
+                </Label>
+                <Select value={selectedLocation} onValueChange={handleLocationChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {shippingRates.map((rate) => (
+                      <SelectItem key={rate.id} value={rate.location}>
+                        {rate.location} {rate.fee === 0 ? '(Free)' : `(UGX ${rate.fee.toLocaleString()})`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Shipping</span>
-                <span className="text-green-600">Free</span>
-              </div>
-              <div className="border-t pt-4">
-                <div className="flex justify-between font-semibold text-lg">
-                  <span>Total</span>
-                  <span className="text-primary">{total}</span>
+
+              <div className="border-t pt-4 space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span>{total}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Shipping to {selectedLocation}</span>
+                  {shippingFee === 0 ? (
+                    <span className="text-green-600 font-medium">Free</span>
+                  ) : (
+                    <span>UGX {shippingFee.toLocaleString()}</span>
+                  )}
+                </div>
+                <div className="border-t pt-3">
+                  <div className="flex justify-between font-semibold text-lg">
+                    <span>Total</span>
+                    <span className="text-primary">
+                      ${grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
                 </div>
               </div>
             </CardContent>

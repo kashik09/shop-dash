@@ -55,7 +55,7 @@ export function Privacy() {
           <p className="text-muted-foreground leading-relaxed">
             We do not sell, trade, or rent your personal information to third parties.
             We may share your information with trusted service providers who assist us in operating our website,
-            conducting our business, or serving you (such as payment processors and shipping partners),
+            conducting our business, or serving you (such as payment processors like Flutterwave and shipping partners),
             so long as they agree to keep this information confidential.
           </p>
         </section>

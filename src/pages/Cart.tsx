@@ -12,18 +12,35 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useCart } from '@/context/CartContext'
-import { fetchShippingRates } from '@/lib/api'
+import { useAuth } from '@/context/AuthContext'
+import { createOrder, fetchShippingRates } from '@/lib/api'
+import { loadFlutterwave } from '@/lib/flutterwave'
 import { ShippingRate, formatPrice } from '@/types'
+import { Input } from '@/components/ui/input'
 
 export function Cart() {
   const { items, removeFromCart, updateQuantity, clearCart, total, itemCount } = useCart()
+  const { user } = useAuth()
   const [shippingRates, setShippingRates] = useState<ShippingRate[]>([])
   const [selectedLocation, setSelectedLocation] = useState<string>('')
   const [shippingFee, setShippingFee] = useState<number>(0)
+  const [customerName, setCustomerName] = useState('')
+  const [customerEmail, setCustomerEmail] = useState('')
+  const [customerPhone, setCustomerPhone] = useState('')
+  const [checkoutError, setCheckoutError] = useState('')
+  const [processingPayment, setProcessingPayment] = useState(false)
 
   useEffect(() => {
     loadShippingRates()
   }, [])
+
+  useEffect(() => {
+    if (!user) return
+
+    setCustomerEmail((prev) => prev || user.email || '')
+    setCustomerName((prev) => prev || user.user_metadata?.full_name || '')
+    setCustomerPhone((prev) => prev || user.phone || '')
+  }, [user])
 
   const loadShippingRates = async () => {
     try {
@@ -52,6 +69,100 @@ export function Cart() {
   }
 
   const grandTotal = total + shippingFee
+  const flutterwaveKey = import.meta.env.VITE_FLW_PUBLIC_KEY
+
+  const canCheckout = Boolean(
+    customerName.trim() &&
+      customerEmail.trim() &&
+      customerPhone.trim() &&
+      selectedLocation &&
+      grandTotal > 0
+  )
+
+  const handleCheckout = async () => {
+    setCheckoutError('')
+
+    if (!flutterwaveKey) {
+      setCheckoutError('Missing Flutterwave public key. Add VITE_FLW_PUBLIC_KEY to your .env file.')
+      return
+    }
+
+    if (!canCheckout) {
+      setCheckoutError('Please complete your contact details before checkout.')
+      return
+    }
+
+    setProcessingPayment(true)
+
+    try {
+      await loadFlutterwave()
+    } catch (err) {
+      setProcessingPayment(false)
+      setCheckoutError('Unable to load the Flutterwave checkout script.')
+      return
+    }
+
+    const txRef = `shopdash_${Date.now()}_${Math.random().toString(16).slice(2)}`
+
+    window.FlutterwaveCheckout?.({
+      public_key: flutterwaveKey,
+      tx_ref: txRef,
+      amount: grandTotal,
+      currency: 'UGX',
+      payment_options: 'mobilemoneyuganda,card',
+      customer: {
+        email: customerEmail.trim(),
+        phone_number: customerPhone.trim(),
+        name: customerName.trim(),
+      },
+      customizations: {
+        title: 'ShopDash',
+        description: 'Order payment',
+      },
+      callback: async (response) => {
+        try {
+          if (response?.status === 'successful') {
+            await createOrder({
+              customerName: customerName.trim(),
+              customerEmail: customerEmail.trim(),
+              customerPhone: customerPhone.trim(),
+              location: selectedLocation,
+              items: items.map((item) => ({
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+              })),
+              subtotal: total,
+              shippingFee,
+              total: grandTotal,
+              payment: {
+                provider: 'flutterwave',
+                status: response.status,
+                transactionId: response.transaction_id,
+                txRef,
+                chargedAmount: response.charged_amount,
+                currency: response.currency,
+                processorResponse: response.processor_response,
+                raw: response,
+              },
+            })
+            clearCart()
+          } else {
+            setCheckoutError('Payment was not completed.')
+          }
+        } catch (err) {
+          console.error('Order creation failed:', err)
+          setCheckoutError('Payment succeeded but order creation failed.')
+        } finally {
+          setProcessingPayment(false)
+        }
+      },
+      onclose: () => {
+        setProcessingPayment(false)
+      },
+    })
+  }
 
   if (items.length === 0) {
     return (
@@ -176,6 +287,36 @@ export function Cart() {
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor="customerName">Full Name</Label>
+                  <Input
+                    id="customerName"
+                    placeholder="Enter your full name"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="customerEmail">Email Address</Label>
+                  <Input
+                    id="customerEmail"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={customerEmail}
+                    onChange={(e) => setCustomerEmail(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="customerPhone">Phone Number</Label>
+                  <Input
+                    id="customerPhone"
+                    placeholder="+256 700 000 000"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                  />
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
@@ -215,10 +356,18 @@ export function Cart() {
                   </div>
                 </div>
               </div>
+              {checkoutError && (
+                <p className="text-sm text-destructive">{checkoutError}</p>
+              )}
             </CardContent>
             <CardFooter>
-              <Button className="w-full" size="lg">
-                Proceed to Checkout
+              <Button
+                className="w-full"
+                size="lg"
+                onClick={handleCheckout}
+                disabled={processingPayment}
+              >
+                {processingPayment ? 'Processing...' : 'Pay with Mobile Money'}
               </Button>
             </CardFooter>
           </Card>

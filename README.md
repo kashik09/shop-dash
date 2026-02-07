@@ -76,6 +76,7 @@ Storefront
 - `/login`
 - `/signup`
 - `/privacy`
+- `/payments`
 - `/terms`
 
 Customer dashboard
@@ -113,4 +114,4 @@ Data viewer (read-only)
 - `docs/SECURITY_OVERVIEW.md`
 - `docs/DATA_STORAGE.md`
 - `docs/ENV.md`
-- `docs/FLUTTERWAVE_MOBILE_MONEY.md`
+- `docs/MOBILE_MONEY.md`

@@ -18,6 +18,7 @@ import { Checkout } from '@/pages/Checkout'
 import { Login } from '@/pages/Login'
 import { SignUp } from '@/pages/SignUp'
 import { Privacy } from '@/pages/Privacy'
+import { Payments } from '@/pages/Payments'
 import { Terms } from '@/pages/Terms'
 import { UserDashboard, UserOrders, UserPreferences } from '@/pages/dashboard'
 import { DataViewer } from '@/pages/data'
@@ -55,6 +56,7 @@ function App() {
                   <Route path="/login" element={<Layout><Login /></Layout>} />
                   <Route path="/signup" element={<Layout><SignUp /></Layout>} />
                   <Route path="/privacy" element={<Layout><Privacy /></Layout>} />
+                  <Route path="/payments" element={<Layout><Payments /></Layout>} />
                   <Route path="/terms" element={<Layout><Terms /></Layout>} />
 
                   {/* User Dashboard Routes */}

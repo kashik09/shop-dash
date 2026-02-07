@@ -1,19 +1,36 @@
-import { Package } from 'lucide-react'
+import { Sun, Moon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useTheme } from '@/context/ThemeContext'
 
 export function Footer() {
+  const { theme, toggleTheme } = useTheme()
+
   return (
-    <footer className="border-t bg-muted/50">
-      <div className="container mx-auto py-8 px-4">
-        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded bg-primary">
-              <Package className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-semibold">ShopDash</span>
-          </div>
+    <footer className="border-t bg-background">
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Built with React, Tailwind CSS & shadcn/ui
+            &copy; {new Date().getFullYear()} ShopDash. All rights reserved.
           </p>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleTheme}
+            className="gap-2"
+          >
+            {theme === 'light' ? (
+              <>
+                <Moon className="h-4 w-4" />
+                Dark
+              </>
+            ) : (
+              <>
+                <Sun className="h-4 w-4" />
+                Light
+              </>
+            )}
+          </Button>
         </div>
       </div>
     </footer>

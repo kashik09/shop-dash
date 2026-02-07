@@ -1,14 +1,12 @@
 import { Link, useLocation } from 'react-router-dom'
-import { ShoppingCart, Sun, Moon, Package, Home, LogIn } from 'lucide-react'
+import { ShoppingCart, Package, Home, LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useCart } from '@/context/CartContext'
-import { useTheme } from '@/context/ThemeContext'
 import { cn } from '@/lib/utils'
 
 export function Header() {
   const { itemCount } = useCart()
-  const { theme, toggleTheme } = useTheme()
   const location = useLocation()
 
   const navItems = [
@@ -47,19 +45,6 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            aria-label="Toggle theme"
-          >
-            {theme === 'light' ? (
-              <Moon className="h-5 w-5" />
-            ) : (
-              <Sun className="h-5 w-5" />
-            )}
-          </Button>
-
           <Link to="/cart">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />

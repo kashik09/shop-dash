@@ -91,12 +91,13 @@ describe('ShopDash app', () => {
     expect(screen.getAllByLabelText(/show password/i).length).toBeGreaterThan(0)
   })
 
-  it('disables phone when email is provided on signup', () => {
+  it('toggles contact method on signup', () => {
     window.history.pushState({}, '', '/signup')
     render(<App />)
-    const emailInput = screen.getByLabelText(/email/i)
-    const phoneInput = screen.getByLabelText(/phone number/i)
-    fireEvent.change(emailInput, { target: { value: 'you@example.com' } })
-    expect(phoneInput).toBeDisabled()
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
+    expect(screen.queryByLabelText(/phone number/i)).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: /use phone/i }))
+    expect(screen.getByLabelText(/phone number/i)).toBeInTheDocument()
+    expect(screen.queryByLabelText(/email/i)).toBeNull()
   })
 })

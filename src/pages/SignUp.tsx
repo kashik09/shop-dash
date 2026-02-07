@@ -18,13 +18,12 @@ export function SignUp() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
+  const [contactMethod, setContactMethod] = useState<'email' | 'phone'>('email')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [passwordFocused, setPasswordFocused] = useState(false)
-  const hasEmail = email.trim().length > 0
-  const hasPhone = phone.trim().length > 0
 
   const passwordRules = [
     {
@@ -54,13 +53,13 @@ export function SignUp() {
     e.preventDefault()
     setError('')
 
-    if (!email.trim() && !phone.trim()) {
-      setError('Please provide an email or phone number')
+    if (contactMethod === 'email' && !email.trim()) {
+      setError('Email is required')
       return
     }
 
-    if (email.trim() && phone.trim()) {
-      setError('Please use either email or phone, not both')
+    if (contactMethod === 'phone' && !phone.trim()) {
+      setError('Phone number is required')
       return
     }
 
@@ -126,41 +125,55 @@ export function SignUp() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email (optional)</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => {
-                    const nextEmail = e.target.value
-                    setEmail(nextEmail)
-                    if (nextEmail.trim() && phone.trim()) {
+                <Label>Contact method</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    type="button"
+                    variant={contactMethod === 'email' ? 'default' : 'outline'}
+                    onClick={() => {
+                      setContactMethod('email')
                       setPhone('')
-                    }
-                  }}
-                  disabled={hasPhone}
-                  required={!hasPhone}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number (optional)</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="+256 700 000 000"
-                  value={phone}
-                  onChange={(e) => {
-                    const nextPhone = e.target.value
-                    setPhone(nextPhone)
-                    if (nextPhone.trim() && email.trim()) {
+                    }}
+                  >
+                    Use Email
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={contactMethod === 'phone' ? 'default' : 'outline'}
+                    onClick={() => {
+                      setContactMethod('phone')
                       setEmail('')
-                    }
-                  }}
-                  disabled={hasEmail}
-                  required={!hasEmail}
-                />
+                    }}
+                  >
+                    Use Phone
+                  </Button>
+                </div>
               </div>
+              {contactMethod === 'email' ? (
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="+256 700 000 000"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">

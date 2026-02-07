@@ -21,6 +21,8 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signUp: (email: string, password: string, name?: string) => Promise<{ error: AuthError | null }>
   signInWithGoogle: () => Promise<{ error: AuthError | null }>
+  signInWithPhone: (phone: string) => Promise<{ error: AuthError | null }>
+  verifyOtp: (phone: string, token: string) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
 }
 
@@ -78,6 +80,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error }
   }
 
+  // Phone OTP Sign In - sends OTP to phone
+  const signInWithPhone = async (phone: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      phone,
+    })
+    return { error }
+  }
+
+  // Verify OTP
+  const verifyOtp = async (phone: string, token: string) => {
+    const { error } = await supabase.auth.verifyOtp({
+      phone,
+      token,
+      type: 'sms',
+    })
+    return { error }
+  }
+
   // Sign Out
   const signOut = async () => {
     await supabase.auth.signOut()
@@ -91,6 +111,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signIn,
       signUp,
       signInWithGoogle,
+      signInWithPhone,
+      verifyOtp,
       signOut,
     }}>
       {children}

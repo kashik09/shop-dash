@@ -1,14 +1,83 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { LogIn, Loader2 } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { LogIn, Loader2, Mail, Phone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAuth } from '@/context/AuthContext'
+import { useSettings } from '@/context/SettingsContext'
 
 export function Login() {
-  const { signInWithGoogle } = useAuth()
+  const navigate = useNavigate()
+  const { signIn, signInWithGoogle, signInWithPhone, verifyOtp } = useAuth()
+  const { storeName } = useSettings()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Email form state
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  // Phone form state
+  const [phone, setPhone] = useState('')
+  const [otp, setOtp] = useState('')
+  const [otpSent, setOtpSent] = useState(false)
+
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+
+    const { error } = await signIn(email, password)
+    if (error) {
+      setError(error.message)
+      setLoading(false)
+    } else {
+      navigate('/')
+    }
+  }
+
+  const handleSendOtp = async () => {
+    if (!phone) {
+      setError('Please enter your phone number')
+      return
+    }
+    setError('')
+    setLoading(true)
+
+    // Format phone number for Uganda if needed
+    let formattedPhone = phone
+    if (phone.startsWith('0')) {
+      formattedPhone = '+256' + phone.slice(1)
+    } else if (!phone.startsWith('+')) {
+      formattedPhone = '+256' + phone
+    }
+
+    const { error } = await signInWithPhone(formattedPhone)
+    if (error) {
+      setError(error.message)
+    } else {
+      setOtpSent(true)
+      setPhone(formattedPhone)
+    }
+    setLoading(false)
+  }
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+
+    const { error } = await verifyOtp(phone, otp)
+    if (error) {
+      setError(error.message)
+      setLoading(false)
+    } else {
+      navigate('/')
+    }
+  }
 
   const handleGoogleSignIn = async () => {
     setError('')
@@ -22,7 +91,7 @@ export function Login() {
 
   return (
     <div className="container mx-auto py-16 px-4">
-      <div className="max-w-sm mx-auto">
+      <div className="max-w-md mx-auto">
         <Card>
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
@@ -31,7 +100,7 @@ export function Login() {
               </div>
             </div>
             <CardTitle className="text-2xl">Welcome</CardTitle>
-            <CardDescription>Sign in to continue to ShopDash</CardDescription>
+            <CardDescription>Sign in to continue to {storeName}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {error && (
@@ -40,9 +109,118 @@ export function Login() {
               </div>
             )}
 
+            <Tabs defaultValue="email" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="email" className="gap-2">
+                  <Mail className="h-4 w-4" />
+                  Email
+                </TabsTrigger>
+                <TabsTrigger value="phone" className="gap-2">
+                  <Phone className="h-4 w-4" />
+                  Phone
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="email" className="space-y-4 mt-4">
+                <form onSubmit={handleEmailSignIn} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Sign In'}
+                  </Button>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="phone" className="space-y-4 mt-4">
+                {!otpSent ? (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="+256 700 000 000"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        We'll send you a one-time code
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      className="w-full"
+                      onClick={handleSendOtp}
+                      disabled={loading}
+                    >
+                      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Send Code'}
+                    </Button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleVerifyOtp} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="otp">Verification Code</Label>
+                      <Input
+                        id="otp"
+                        type="text"
+                        placeholder="Enter 6-digit code"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        maxLength={6}
+                        required
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Code sent to {phone}
+                      </p>
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Verify & Sign In'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="w-full"
+                      onClick={() => setOtpSent(false)}
+                    >
+                      Change Number
+                    </Button>
+                  </form>
+                )}
+              </TabsContent>
+            </Tabs>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">Or</span>
+              </div>
+            </div>
+
             <Button
+              variant="outline"
               className="w-full gap-3"
-              size="lg"
               onClick={handleGoogleSignIn}
               disabled={loading}
             >
@@ -71,8 +249,22 @@ export function Login() {
               Continue with Google
             </Button>
 
+            <p className="text-sm text-center text-muted-foreground">
+              Don't have an account?{' '}
+              <Link to="/signup" className="text-primary hover:underline">
+                Sign up
+              </Link>
+            </p>
+
             <p className="text-xs text-center text-muted-foreground">
-              By continuing, you agree to our Terms of Service and Privacy Policy
+              By continuing, you agree to our{' '}
+              <Link to="/terms" className="text-primary hover:underline">
+                Terms of Service
+              </Link>{' '}
+              and{' '}
+              <Link to="/privacy" className="text-primary hover:underline">
+                Privacy Policy
+              </Link>
             </p>
           </CardContent>
         </Card>

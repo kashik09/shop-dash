@@ -6,6 +6,7 @@ import { AdminAuthProvider } from '@/context/AdminAuthContext'
 import { SettingsProvider } from '@/context/SettingsContext'
 import { Layout } from '@/components/layout/Layout'
 import { AdminLayout } from '@/components/layout/AdminLayout'
+import { DataLayout } from '@/components/layout/DataLayout'
 import { UserLayout } from '@/components/layout/UserLayout'
 import { RequireAuth } from '@/components/auth/RequireAuth'
 import { RequireAdmin } from '@/components/auth/RequireAdmin'
@@ -19,6 +20,7 @@ import { SignUp } from '@/pages/SignUp'
 import { Privacy } from '@/pages/Privacy'
 import { Terms } from '@/pages/Terms'
 import { UserDashboard, UserOrders, UserPreferences } from '@/pages/dashboard'
+import { DataViewer } from '@/pages/data'
 import {
   Dashboard,
   AdminProducts,
@@ -119,6 +121,14 @@ function App() {
                     element={(
                       <RequireAdmin>
                         <AdminLayout><AdminSettings /></AdminLayout>
+                      </RequireAdmin>
+                    )}
+                  />
+                  <Route
+                    path="/admin-data"
+                    element={(
+                      <RequireAdmin>
+                        <DataLayout><DataViewer /></DataLayout>
                       </RequireAdmin>
                     )}
                   />

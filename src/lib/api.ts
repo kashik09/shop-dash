@@ -385,3 +385,15 @@ export async function adminLogout(): Promise<void> {
   const res = await fetch(`${API_URL}/admin-auth/logout`, { method: 'POST', credentials: 'include' })
   if (!res.ok && res.status !== 204) throw new Error('Failed to log out')
 }
+
+// ============================================
+// ADMIN DATA VIEWER
+// ============================================
+
+export async function fetchAdminData(dataset: string) {
+  const res = await fetch(`${API_URL}/admin-data?dataset=${encodeURIComponent(dataset)}`, {
+    credentials: 'include',
+  })
+  if (!res.ok) throw new Error('Failed to fetch admin data')
+  return res.json()
+}

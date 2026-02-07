@@ -109,6 +109,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               Back to Store
             </Button>
           </Link>
+          <Link to="/admin-data">
+            <Button variant="outline" className="w-full justify-start gap-3">
+              Data Viewer
+            </Button>
+          </Link>
 
           <Button variant="ghost" className="w-full justify-start gap-3" onClick={signOut}>
             Sign Out

@@ -1,0 +1,10 @@
+[
+  { "id": 1, "location": "Kampala", "fee": 0, "estimatedDays": "1-2" },
+  { "id": 2, "location": "Entebbe", "fee": 5000, "estimatedDays": "1-2" },
+  { "id": 3, "location": "Jinja", "fee": 8000, "estimatedDays": "2-3" },
+  { "id": 4, "location": "Mbarara", "fee": 12000, "estimatedDays": "3-4" },
+  { "id": 5, "location": "Gulu", "fee": 15000, "estimatedDays": "4-5" },
+  { "id": 6, "location": "Mbale", "fee": 10000, "estimatedDays": "2-3" },
+  { "id": 7, "location": "Fort Portal", "fee": 14000, "estimatedDays": "3-4" },
+  { "id": 8, "location": "Other", "fee": 20000, "estimatedDays": "5-7" }
+]

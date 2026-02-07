@@ -1,0 +1,6 @@
+[
+  { "id": 1, "name": "electronics", "label": "Electronics", "icon": "Laptop" },
+  { "id": 2, "name": "accessories", "label": "Accessories", "icon": "Mouse" },
+  { "id": 3, "name": "audio", "label": "Audio", "icon": "Headphones" },
+  { "id": 4, "name": "gaming", "label": "Gaming", "icon": "Gamepad" }
+]

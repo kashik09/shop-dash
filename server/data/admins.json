@@ -1,0 +1,10 @@
+[
+  {
+    "id": 1,
+    "email": "admin@shopdash.com",
+    "name": "Admin User",
+    "role": "super_admin",
+    "permissions": ["all"],
+    "createdAt": "2024-01-01T00:00:00Z"
+  }
+]

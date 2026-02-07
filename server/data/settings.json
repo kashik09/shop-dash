@@ -1,0 +1,22 @@
+{
+  "store": {
+    "name": "ShopDash",
+    "email": "contact@shopdash.com",
+    "phone": "+256 700 000 000",
+    "currency": "UGX",
+    "country": "Uganda",
+    "address": "Kampala, Uganda"
+  },
+  "tax": {
+    "enabled": true,
+    "name": "VAT",
+    "rate": 18,
+    "includeInPrice": false
+  },
+  "notifications": {
+    "emailEnabled": true,
+    "lowStockAlert": true,
+    "orderConfirmation": true,
+    "shippingUpdates": true
+  }
+}

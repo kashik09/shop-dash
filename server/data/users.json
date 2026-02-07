@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "email": "customer@example.com",
+    "name": "John Doe",
+    "phone": "+256 700 111 111",
+    "address": "Kampala, Uganda",
+    "role": "customer",
+    "createdAt": "2024-01-15T10:00:00Z"
+  }
+]

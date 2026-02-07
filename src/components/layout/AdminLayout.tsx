@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import {
   LayoutDashboard,
   Package,
@@ -13,6 +14,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/context/ThemeContext'
 import { useAdminAuth } from '@/context/AdminAuthContext'
+import { useSettings } from '@/context/SettingsContext'
+import { buildDocumentTitle } from '@/lib/pageTitle'
 
 const navItems = [
   { path: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
@@ -30,6 +33,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation()
   const { theme, toggleTheme } = useTheme()
   const { admin, signOut } = useAdminAuth()
+  const { storeName } = useSettings()
+
+  useEffect(() => {
+    const siteName = storeName || 'ShopDash'
+    document.title = buildDocumentTitle(location.pathname, siteName)
+  }, [location.pathname, storeName])
 
   const isActive = (path: string, exact?: boolean) => {
     if (exact) {

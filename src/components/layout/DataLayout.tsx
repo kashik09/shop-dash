@@ -1,7 +1,10 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { Database, ExternalLink, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAdminAuth } from '@/context/AdminAuthContext'
+import { useSettings } from '@/context/SettingsContext'
+import { buildDocumentTitle } from '@/lib/pageTitle'
 
 interface DataLayoutProps {
   children: React.ReactNode
@@ -10,6 +13,12 @@ interface DataLayoutProps {
 export function DataLayout({ children }: DataLayoutProps) {
   const location = useLocation()
   const { admin, signOut } = useAdminAuth()
+  const { storeName } = useSettings()
+
+  useEffect(() => {
+    const siteName = storeName || 'ShopDash'
+    document.title = buildDocumentTitle(location.pathname, siteName)
+  }, [location.pathname, storeName])
 
   return (
     <div className="min-h-screen bg-muted/30">

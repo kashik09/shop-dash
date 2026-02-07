@@ -1,7 +1,10 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { LayoutDashboard, ShoppingBag, Settings, Store, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/context/AuthContext'
+import { useSettings } from '@/context/SettingsContext'
+import { buildDocumentTitle } from '@/lib/pageTitle'
 
 const navItems = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Overview', exact: true },
@@ -16,6 +19,12 @@ interface UserLayoutProps {
 export function UserLayout({ children }: UserLayoutProps) {
   const location = useLocation()
   const { user, signOut } = useAuth()
+  const { storeName } = useSettings()
+
+  useEffect(() => {
+    const siteName = storeName || 'ShopDash'
+    document.title = buildDocumentTitle(location.pathname, siteName)
+  }, [location.pathname, storeName])
 
   const isActive = (path: string, exact?: boolean) => {
     if (exact) {

@@ -21,7 +21,6 @@ const defaultPreferences = {
     location: '',
     address: '',
   },
-  marketingOptIn: false,
 }
 
 export function UserPreferences() {
@@ -36,7 +35,10 @@ export function UserPreferences() {
       try {
         const data = await fetchMyPreferences()
         const merged = { ...defaultPreferences, ...data }
-        setPreferences(merged)
+        const { marketingOptIn, ...sanitized } = merged as typeof merged & {
+          marketingOptIn?: boolean
+        }
+        setPreferences(sanitized)
         const nextMode = merged.theme === 'light' || merged.theme === 'dark' || merged.theme === 'system'
           ? merged.theme
           : 'system'
@@ -69,7 +71,10 @@ export function UserPreferences() {
     setSaving(true)
     setError('')
     try {
-      await updateMyPreferences(preferences)
+      const { marketingOptIn, ...payload } = preferences as typeof preferences & {
+        marketingOptIn?: boolean
+      }
+      await updateMyPreferences(payload)
     } catch (err: any) {
       setError(err.message || 'Failed to save preferences')
     } finally {
@@ -84,7 +89,7 @@ export function UserPreferences() {
   }
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-5 sm:p-8 space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Preferences</h1>
         <p className="text-muted-foreground">Manage your theme, notifications, and delivery defaults.</p>
@@ -220,18 +225,6 @@ export function UserPreferences() {
                 id="shipAddress"
                 value={preferences.shipping.address}
                 onChange={(e) => updateShipping('address', e.target.value)}
-              />
-            </div>
-            <div className="flex items-center justify-between sm:col-span-2">
-              <div>
-                <Label>Marketing Opt-in</Label>
-                <p className="text-sm text-muted-foreground">Stay in the loop.</p>
-              </div>
-              <Switch
-                checked={preferences.marketingOptIn}
-                onCheckedChange={(checked) =>
-                  setPreferences((prev) => ({ ...prev, marketingOptIn: checked }))
-                }
               />
             </div>
           </CardContent>

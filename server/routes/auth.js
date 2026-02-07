@@ -37,7 +37,6 @@ const defaultPreferences = {
     location: '',
     address: '',
   },
-  marketingOptIn: false,
 }
 
 router.post('/signup', async (req, res) => {

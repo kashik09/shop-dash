@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from '@/context/ThemeContext'
 import { CartProvider } from '@/context/CartContext'
+import { AuthProvider } from '@/context/AuthContext'
 import { Layout } from '@/components/layout/Layout'
 import { AdminLayout } from '@/components/layout/AdminLayout'
 import { Home } from '@/pages/Home'
@@ -21,8 +22,9 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
-        <CartProvider>
-          <Routes>
+        <AuthProvider>
+          <CartProvider>
+            <Routes>
             {/* Store Routes */}
             <Route path="/" element={<Layout><Home /></Layout>} />
             <Route path="/products" element={<Layout><Products /></Layout>} />
@@ -38,7 +40,8 @@ function App() {
             <Route path="/admin/orders" element={<AdminLayout><AdminOrders /></AdminLayout>} />
             <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
           </Routes>
-        </CartProvider>
+          </CartProvider>
+        </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
   )

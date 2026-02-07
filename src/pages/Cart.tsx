@@ -224,7 +224,7 @@ export function Cart() {
                   <div className="flex justify-between font-semibold text-lg">
                     <span>Total</span>
                     <span className="text-primary">
-                      ${grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      UGX {grandTotal.toLocaleString()}
                     </span>
                   </div>
                 </div>

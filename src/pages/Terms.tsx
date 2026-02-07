@@ -74,9 +74,7 @@ export function Terms() {
         <section>
           <h2 className="text-xl font-semibold mb-3">7. Returns and Refunds</h2>
           <p className="text-muted-foreground leading-relaxed">
-            We accept returns within 7 days of delivery for products in their original condition.
-            Refunds will be processed within 14 business days after we receive the returned item.
-            Some products may not be eligible for return due to hygiene or safety reasons.
+            All sales are final. We do not offer refunds or returns at this time.
           </p>
         </section>
 

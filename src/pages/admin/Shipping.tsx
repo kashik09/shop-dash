@@ -189,7 +189,12 @@ export function AdminShipping() {
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(rate)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleOpenDialog(rate)}
+                            aria-label={`Edit shipping rate for ${rate.location}`}
+                          >
                             <Pencil className="h-4 w-4" />
                           </Button>
                           <Button
@@ -197,6 +202,7 @@ export function AdminShipping() {
                             size="icon"
                             className="text-destructive hover:text-destructive"
                             onClick={() => handleDelete(rate.id)}
+                            aria-label={`Delete shipping rate for ${rate.location}`}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

@@ -158,6 +158,7 @@ export function ProductCard({ product, onRemove, showAdminActions = false }: Pro
             variant="destructive"
             size="icon"
             onClick={() => onRemove(product.id)}
+            aria-label={`Remove ${product.name}`}
           >
             <Trash2 className="h-4 w-4" />
           </Button>

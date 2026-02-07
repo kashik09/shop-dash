@@ -366,7 +366,12 @@ export function AdminProducts() {
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(product)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleOpenDialog(product)}
+                            aria-label={`Edit ${product.name}`}
+                          >
                             <Pencil className="h-4 w-4" />
                           </Button>
                           <Button
@@ -374,6 +379,7 @@ export function AdminProducts() {
                             size="icon"
                             className="text-destructive hover:text-destructive"
                             onClick={() => handleDelete(product.id)}
+                            aria-label={`Delete ${product.name}`}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

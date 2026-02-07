@@ -82,6 +82,7 @@ export function Cart() {
                         size="icon"
                         className="h-8 w-8"
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        aria-label={`Decrease quantity for ${item.name}`}
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
@@ -93,6 +94,7 @@ export function Cart() {
                         size="icon"
                         className="h-8 w-8"
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        aria-label={`Increase quantity for ${item.name}`}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>

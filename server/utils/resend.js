@@ -1,16 +1,25 @@
 import { Resend } from 'resend'
 
-// Initialize Resend with API key from environment
-const resend = new Resend(process.env.RESEND_API_KEY)
-
-// Store email (from your verified domain or Resend's test domain)
+const resendApiKey = process.env.RESEND_API_KEY
+const resend = resendApiKey ? new Resend(resendApiKey) : null
 const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev'
+let warnedMissingKey = false
+
+function warnMissingKey() {
+  if (warnedMissingKey || resendApiKey) return
+  warnedMissingKey = true
+  console.warn('RESEND_API_KEY is missing. Skipping email send in dev.')
+}
 
 /**
  * Send order confirmation email
  */
 export async function sendOrderConfirmation(order, customerEmail) {
   try {
+    if (!resend) {
+      warnMissingKey()
+      return { success: false, error: 'RESEND_API_KEY is missing' }
+    }
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: customerEmail,
@@ -56,6 +65,10 @@ export async function sendOrderConfirmation(order, customerEmail) {
  */
 export async function sendShippingUpdate(order, customerEmail, status) {
   try {
+    if (!resend) {
+      warnMissingKey()
+      return { success: false, error: 'RESEND_API_KEY is missing' }
+    }
     const statusMessages = {
       shipped: 'Your order has been shipped!',
       out_for_delivery: 'Your order is out for delivery!',
@@ -86,6 +99,10 @@ export async function sendShippingUpdate(order, customerEmail, status) {
  */
 export async function sendLowStockAlert(product, adminEmail) {
   try {
+    if (!resend) {
+      warnMissingKey()
+      return { success: false, error: 'RESEND_API_KEY is missing' }
+    }
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: adminEmail,

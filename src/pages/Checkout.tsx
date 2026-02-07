@@ -24,6 +24,7 @@ export function Checkout() {
   const [selectedLocation, setSelectedLocation] = useState('')
   const [shippingFee, setShippingFee] = useState(0)
   const [customerName, setCustomerName] = useState('')
+  const [contactMethod, setContactMethod] = useState<'phone' | 'email'>('phone')
   const [customerEmail, setCustomerEmail] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
   const [prefLoaded, setPrefLoaded] = useState(false)
@@ -91,6 +92,16 @@ export function Checkout() {
     setShippingFee(rate?.fee || 0)
   }
 
+  useEffect(() => {
+    if (customerPhone) {
+      setContactMethod('phone')
+      return
+    }
+    if (customerEmail) {
+      setContactMethod('email')
+    }
+  }, [customerPhone, customerEmail])
+
   const grandTotal = total + shippingFee
 
   if (items.length === 0) {
@@ -148,24 +159,52 @@ export function Checkout() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="customerEmail">Email Address</Label>
-                <Input
-                  id="customerEmail"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={customerEmail}
-                  onChange={(e) => setCustomerEmail(e.target.value)}
-                />
+                <Label>Contact method</Label>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <Button
+                    type="button"
+                    variant={contactMethod === 'phone' ? 'default' : 'outline'}
+                    onClick={() => {
+                      setContactMethod('phone')
+                      setCustomerEmail('')
+                    }}
+                  >
+                    Use Phone
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={contactMethod === 'email' ? 'default' : 'outline'}
+                    onClick={() => {
+                      setContactMethod('email')
+                      setCustomerPhone('')
+                    }}
+                  >
+                    Use Email
+                  </Button>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="customerPhone">Phone Number</Label>
-                <Input
-                  id="customerPhone"
-                  placeholder="+256 700 000 000"
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
-                />
-              </div>
+              {contactMethod === 'phone' ? (
+                <div className="space-y-2">
+                  <Label htmlFor="customerPhone">Phone Number</Label>
+                  <Input
+                    id="customerPhone"
+                    placeholder="+256 700 000 000"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="customerEmail">Email Address</Label>
+                  <Input
+                    id="customerEmail"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={customerEmail}
+                    onChange={(e) => setCustomerEmail(e.target.value)}
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
 

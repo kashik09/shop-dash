@@ -25,14 +25,44 @@ export function Products() {
       setProducts(data)
       setError(null)
     } catch {
-      setError('Failed to load products. Make sure the API server is running.')
+      setError('Failed to load products. Check your API URL or make sure the API server is running.')
       // Fallback to demo data
       setProducts([
-        { id: 1, name: 'Laptop', price: '$999', inStock: true },
-        { id: 2, name: 'Phone', price: '$699', inStock: false },
-        { id: 3, name: 'Tablet', price: '$499', inStock: true },
-        { id: 4, name: 'Monitor', price: '$299', inStock: true },
-        { id: 5, name: 'Keyboard', price: '$79', inStock: false },
+        {
+          id: 1,
+          name: 'Laptop',
+          price: 999000,
+          inStock: true,
+          image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop',
+        },
+        {
+          id: 2,
+          name: 'Phone',
+          price: 699000,
+          inStock: false,
+          image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop',
+        },
+        {
+          id: 3,
+          name: 'Tablet',
+          price: 499000,
+          inStock: true,
+          image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop',
+        },
+        {
+          id: 4,
+          name: 'Monitor',
+          price: 299000,
+          inStock: true,
+          image: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&h=300&fit=crop',
+        },
+        {
+          id: 5,
+          name: 'Keyboard',
+          price: 79000,
+          inStock: false,
+          image: 'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=400&h=300&fit=crop',
+        },
       ])
     } finally {
       setLoading(false)

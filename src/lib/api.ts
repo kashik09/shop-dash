@@ -1,4 +1,13 @@
-const API_URL = 'http://localhost:4000/api'
+const resolveApiUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL
+  if (envUrl) return envUrl.replace(/\/$/, '')
+  if (import.meta.env.PROD && typeof window !== 'undefined') {
+    return `${window.location.origin}/api`
+  }
+  return 'http://localhost:4000/api'
+}
+
+const API_URL = resolveApiUrl()
 const CSRF_STORAGE_KEY = 'csrf_token'
 
 import { Product, ShippingRate } from '@/types'

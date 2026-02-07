@@ -8,7 +8,7 @@ import {
   Store,
   Moon,
   Sun,
-  LogOut,
+  ExternalLink,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/context/ThemeContext'
@@ -33,13 +33,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     if (exact) {
       return location.pathname === path
     }
-    return location.pathname.startsWith(path)
+    return location.pathname.startsWith(path) && path !== '/admin'
   }
 
   return (
     <div className="min-h-screen flex bg-muted/30">
       {/* Sidebar */}
-      <aside className="w-64 bg-card border-r flex flex-col">
+      <aside className="w-64 bg-card border-r flex flex-col fixed h-full">
         {/* Logo */}
         <div className="h-16 flex items-center gap-2 px-6 border-b">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
@@ -55,7 +55,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         <nav className="flex-1 p-4 space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon
-            const active = isActive(item.path, item.exact)
+            const active = item.exact
+              ? location.pathname === item.path
+              : isActive(item.path)
             return (
               <Link
                 key={item.path}
@@ -92,9 +94,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </>
             )}
           </Button>
+
+          {/* Back to Store Button */}
           <Link to="/">
-            <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground">
-              <LogOut className="h-5 w-5" />
+            <Button variant="outline" className="w-full justify-start gap-3">
+              <ExternalLink className="h-5 w-5" />
               Back to Store
             </Button>
           </Link>
@@ -102,7 +106,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 ml-64 overflow-auto min-h-screen">
         {children}
       </main>
     </div>

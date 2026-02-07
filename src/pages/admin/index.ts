@@ -1,0 +1,5 @@
+export { Dashboard } from './Dashboard'
+export { AdminProducts } from './Products'
+export { AdminShipping } from './Shipping'
+export { AdminOrders } from './Orders'
+export { AdminSettings } from './Settings'

@@ -7,7 +7,13 @@ import { Home } from '@/pages/Home'
 import { Products } from '@/pages/Products'
 import { ProductDetail } from '@/pages/ProductDetail'
 import { Cart } from '@/pages/Cart'
-import { Admin } from '@/pages/Admin'
+import {
+  Dashboard,
+  AdminProducts,
+  AdminShipping,
+  AdminOrders,
+  AdminSettings,
+} from '@/pages/admin'
 
 function App() {
   return (
@@ -16,13 +22,17 @@ function App() {
         <CartProvider>
           <Routes>
             {/* Store Routes */}
-            <Route element={<Layout><Home /></Layout>} path="/" />
-            <Route element={<Layout><Products /></Layout>} path="/products" />
-            <Route element={<Layout><ProductDetail /></Layout>} path="/products/:id" />
-            <Route element={<Layout><Cart /></Layout>} path="/cart" />
+            <Route path="/" element={<Layout><Home /></Layout>} />
+            <Route path="/products" element={<Layout><Products /></Layout>} />
+            <Route path="/products/:id" element={<Layout><ProductDetail /></Layout>} />
+            <Route path="/cart" element={<Layout><Cart /></Layout>} />
 
             {/* Admin Routes */}
-            <Route path="/admin/*" element={<AdminLayout><Admin /></AdminLayout>} />
+            <Route path="/admin" element={<AdminLayout><Dashboard /></AdminLayout>} />
+            <Route path="/admin/products" element={<AdminLayout><AdminProducts /></AdminLayout>} />
+            <Route path="/admin/shipping" element={<AdminLayout><AdminShipping /></AdminLayout>} />
+            <Route path="/admin/orders" element={<AdminLayout><AdminOrders /></AdminLayout>} />
+            <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
           </Routes>
         </CartProvider>
       </ThemeProvider>

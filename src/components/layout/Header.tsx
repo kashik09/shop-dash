@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { ShoppingCart, Sun, Moon, Package, Home, LogIn, UserPlus } from 'lucide-react'
+import { ShoppingCart, Sun, Moon, Package, Home, LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useCart } from '@/context/CartContext'
@@ -75,16 +75,9 @@ export function Header() {
           </Link>
 
           <Link to="/login">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <LogIn className="h-4 w-4" />
-              <span className="hidden sm:inline">Login</span>
-            </Button>
-          </Link>
-
-          <Link to="/signup">
             <Button size="sm" className="gap-2">
-              <UserPlus className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign Up</span>
+              <LogIn className="h-4 w-4" />
+              <span className="hidden sm:inline">Sign In</span>
             </Button>
           </Link>
         </div>

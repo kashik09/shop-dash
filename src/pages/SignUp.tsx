@@ -197,7 +197,7 @@ export function SignUp() {
                   </button>
                   {showPasswordRules && (
                     <div className="mt-3 sm:mt-0 sm:absolute sm:left-full sm:top-1/2 sm:-translate-y-1/2 sm:ml-4">
-                      <div className="relative rounded-xl border border-border/60 bg-neutral-900 px-4 py-3 text-xs text-white shadow-xl">
+                      <div className="relative min-w-[240px] rounded-xl border border-border/60 bg-neutral-900 px-4 py-3 text-xs text-white shadow-xl">
                         <span className="hidden sm:block absolute left-0 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-neutral-900" />
                         <p className="text-[0.7rem] font-semibold uppercase tracking-wide text-white/80">
                           Your password must contain
@@ -206,11 +206,13 @@ export function SignUp() {
                           {passwordRules.map((rule) => (
                             <div key={rule.label} className="flex items-center gap-2">
                               {rule.met ? (
-                                <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
+                                <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
                               ) : (
-                                <Circle className="h-3.5 w-3.5 text-white/50" />
+                                <Circle className="h-3.5 w-3.5 shrink-0 text-white/50" />
                               )}
-                              <span className={rule.met ? 'text-white' : 'text-white/70'}>
+                              <span
+                                className={`whitespace-nowrap ${rule.met ? 'text-white' : 'text-white/70'}`}
+                              >
                                 {rule.label}
                               </span>
                             </div>

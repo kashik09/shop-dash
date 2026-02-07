@@ -9,6 +9,14 @@ let cleanup
 const adminOrigin = 'http://admin.test'
 
 beforeAll(async () => {
+  process.env.NODE_ENV = 'test'
+  process.env.DATA_ENCRYPTION_KEY = 'a'.repeat(64)
+  process.env.ADMIN_ORIGIN = adminOrigin
+  process.env.CORS_ORIGIN = adminOrigin
+  process.env.ADMIN_BOOTSTRAP_PASSWORD = 'bootstrap-secret'
+
+  const { encryptField } = await import('../utils/crypto.js')
+
   const adminSeed = [
     {
       id: 1,
@@ -19,17 +27,26 @@ beforeAll(async () => {
     },
   ]
 
+  const userSeed = [
+    {
+      id: 1,
+      name: 'Jane Doe',
+      email: encryptField('jane@example.com'),
+      phone: encryptField('+256700111111'),
+      role: 'customer',
+      passwordHash: 'hashed',
+      createdAt: new Date().toISOString(),
+    },
+  ]
+
   const testData = createTestDataDir({
     admins: adminSeed,
+    users: userSeed,
     products: [{ id: 1, name: 'Sample', price: 1200, inStock: true }],
   })
   cleanup = testData.cleanup
 
-  process.env.NODE_ENV = 'test'
   process.env.DATA_DIR = testData.dir
-  process.env.ADMIN_ORIGIN = adminOrigin
-  process.env.CORS_ORIGIN = adminOrigin
-  process.env.ADMIN_BOOTSTRAP_PASSWORD = 'bootstrap-secret'
 
   vi.resetModules()
   const { createApp } = await import('../app.js')
@@ -43,6 +60,7 @@ afterAll(() => {
   delete process.env.ADMIN_ORIGIN
   delete process.env.CORS_ORIGIN
   delete process.env.ADMIN_BOOTSTRAP_PASSWORD
+  delete process.env.DATA_ENCRYPTION_KEY
 })
 
 describe('admin data viewer', () => {
@@ -71,5 +89,33 @@ describe('admin data viewer', () => {
 
     const res = await agent.get('/api/admin-data?dataset=unknown').set('Origin', adminOrigin)
     expect(res.status).toBe(400)
+  })
+
+  it('masks sensitive fields by default', async () => {
+    await agent
+      .post('/api/admin-auth/login')
+      .set('Origin', adminOrigin)
+      .send({ email: 'admin@example.com', password: 'bootstrap-secret' })
+
+    const res = await agent.get('/api/admin-data?dataset=users').set('Origin', adminOrigin)
+    expect(res.status).toBe(200)
+    expect(res.body[0].email).not.toBe('jane@example.com')
+    expect(res.body[0].email).toContain('@')
+  })
+
+  it('reveals sensitive fields after unlock', async () => {
+    await agent
+      .post('/api/admin-auth/login')
+      .set('Origin', adminOrigin)
+      .send({ email: 'admin@example.com', password: 'bootstrap-secret' })
+
+    await agent
+      .post('/api/admin-auth/unmask')
+      .set('Origin', adminOrigin)
+      .send({ password: 'bootstrap-secret' })
+
+    const res = await agent.get('/api/admin-data?dataset=users').set('Origin', adminOrigin)
+    expect(res.status).toBe(200)
+    expect(res.body[0].email).toBe('jane@example.com')
   })
 })

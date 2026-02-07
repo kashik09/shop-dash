@@ -8,6 +8,15 @@ import { logAdminAlert } from '../utils/admin-alerts.js'
 const router = Router()
 const MAX_FAILED_ATTEMPTS = parseInt(process.env.ADMIN_MAX_FAILED_ATTEMPTS || '5', 10)
 const LOCK_MINUTES = parseInt(process.env.ADMIN_LOCK_MINUTES || '15', 10)
+const UNMASK_SECONDS = 15
+
+const getUnmaskCookieOptions = () => ({
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: process.env.NODE_ENV === 'production',
+  path: '/',
+  maxAge: UNMASK_SECONDS * 1000,
+})
 
 const toSafeAdmin = (admin) => ({
   id: admin.id,
@@ -160,6 +169,44 @@ router.get('/me', (req, res) => {
 router.post('/logout', (req, res) => {
   res.clearCookie('admin_session', { path: '/' })
   res.status(204).send()
+})
+
+router.post('/unmask', async (req, res) => {
+  const token = req.cookies?.admin_session
+  if (!token) {
+    return res.status(401).json({ error: 'Admin authentication required' })
+  }
+
+  const { password } = req.body || {}
+  if (!isNonEmptyString(password)) {
+    return res.status(400).json({ error: 'Password is required' })
+  }
+
+  try {
+    const payload = verifyAdminToken(token)
+    const admins = readData('admins') || []
+    const admin = admins.find((a) => a.id === Number(payload.sub))
+    if (!admin) {
+      return res.status(404).json({ error: 'Admin not found' })
+    }
+
+    let valid = false
+    if (admin.passwordHash) {
+      valid = await comparePassword(password, admin.passwordHash)
+    } else {
+      const bootstrap = process.env.ADMIN_BOOTSTRAP_PASSWORD
+      valid = Boolean(bootstrap && bootstrap === password)
+    }
+
+    if (!valid) {
+      return res.status(401).json({ error: 'Invalid credentials' })
+    }
+
+    res.cookie('admin_unmask', '1', getUnmaskCookieOptions())
+    return res.json({ ok: true, expiresIn: UNMASK_SECONDS })
+  } catch {
+    return res.status(401).json({ error: 'Invalid admin session' })
+  }
 })
 
 export default router

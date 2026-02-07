@@ -37,7 +37,7 @@ export function Terms() {
         <section>
           <h2 className="text-xl font-semibold mb-3">3. Account Registration</h2>
           <p className="text-muted-foreground leading-relaxed">
-            To make purchases, you may need to create an account using Google Sign-In.
+            To make purchases, you may need to create an account with your email or phone number.
             You are responsible for maintaining the confidentiality of your account and for all activities
             that occur under your account. You agree to notify us immediately of any unauthorized use.
           </p>
@@ -83,7 +83,7 @@ export function Terms() {
         <section>
           <h2 className="text-xl font-semibold mb-3">8. Intellectual Property</h2>
           <p className="text-muted-foreground leading-relaxed">
-            All content on this website, including text, graphics, logos, and images, is the property of
+            All content on this website, including text, graphics, logos, and images, is the property of 
             {storeName} or its content suppliers and is protected by intellectual property laws.
             You may not reproduce, distribute, or create derivative works without our written permission.
           </p>

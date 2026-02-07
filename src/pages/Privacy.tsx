@@ -29,7 +29,7 @@ export function Privacy() {
           </p>
           <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
             <li>Name and contact information (email, phone number, address)</li>
-            <li>Account credentials (when you sign in with Google)</li>
+            <li>Account credentials (email or phone number and password)</li>
             <li>Payment information (processed securely through our payment partners)</li>
             <li>Order history and preferences</li>
             <li>Communications with us</li>
@@ -55,17 +55,18 @@ export function Privacy() {
           <p className="text-muted-foreground leading-relaxed">
             We do not sell, trade, or rent your personal information to third parties.
             We may share your information with trusted service providers who assist us in operating our website,
-            conducting our business, or serving you (such as payment processors like Flutterwave and shipping partners),
-            so long as they agree to keep this information confidential.
+            conducting our business, or serving you (such as payment processors like Flutterwave for MTN/Airtel Mobile Money
+            and shipping partners), so long as they agree to keep this information confidential.
           </p>
         </section>
 
         <section>
           <h2 className="text-xl font-semibold mb-3">5. Data Security</h2>
           <p className="text-muted-foreground leading-relaxed">
-            We implement security measures such as API rate limiting, security headers, and restricted
-            request sizes to protect your personal information. However, no method of transmission over
-            the Internet or electronic storage is 100% secure, and we cannot guarantee absolute security.
+            We use layered security controls, including encryption of sensitive data at rest, hashed passwords,
+            admin-only access controls, audit logging, strict CORS allowlists, secure cookies, rate limiting,
+            and hardened security headers. However, no method of transmission over the Internet or electronic
+            storage is 100% secure, and we cannot guarantee absolute security.
           </p>
         </section>
 

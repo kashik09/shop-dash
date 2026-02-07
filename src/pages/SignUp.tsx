@@ -23,6 +23,8 @@ export function SignUp() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [passwordFocused, setPasswordFocused] = useState(false)
+  const hasEmail = email.trim().length > 0
+  const hasPhone = phone.trim().length > 0
 
   const passwordRules = [
     {
@@ -54,6 +56,11 @@ export function SignUp() {
 
     if (!email.trim() && !phone.trim()) {
       setError('Please provide an email or phone number')
+      return
+    }
+
+    if (email.trim() && phone.trim()) {
+      setError('Please use either email or phone, not both')
       return
     }
 
@@ -125,7 +132,15 @@ export function SignUp() {
                   type="email"
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    const nextEmail = e.target.value
+                    setEmail(nextEmail)
+                    if (nextEmail.trim() && phone.trim()) {
+                      setPhone('')
+                    }
+                  }}
+                  disabled={hasPhone}
+                  required={!hasPhone}
                 />
               </div>
               <div className="space-y-2">
@@ -135,7 +150,15 @@ export function SignUp() {
                   type="tel"
                   placeholder="+256 700 000 000"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => {
+                    const nextPhone = e.target.value
+                    setPhone(nextPhone)
+                    if (nextPhone.trim() && email.trim()) {
+                      setEmail('')
+                    }
+                  }}
+                  disabled={hasEmail}
+                  required={!hasEmail}
                 />
               </div>
               <div className="space-y-2">

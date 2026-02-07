@@ -90,4 +90,13 @@ describe('ShopDash app', () => {
     expect(screen.getByText(/one uppercase letter/i)).toBeInTheDocument()
     expect(screen.getAllByLabelText(/show password/i).length).toBeGreaterThan(0)
   })
+
+  it('disables phone when email is provided on signup', () => {
+    window.history.pushState({}, '', '/signup')
+    render(<App />)
+    const emailInput = screen.getByLabelText(/email/i)
+    const phoneInput = screen.getByLabelText(/phone number/i)
+    fireEvent.change(emailInput, { target: { value: 'you@example.com' } })
+    expect(phoneInput).toBeDisabled()
+  })
 })

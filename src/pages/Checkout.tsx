@@ -40,12 +40,6 @@ export function Checkout() {
   const [receiverName, setReceiverName] = useState(draft?.receiverName || '')
   const [receiverPhone, setReceiverPhone] = useState(draft?.receiverPhone || '')
   const [deliveryNote, setDeliveryNote] = useState(draft?.deliveryNote || '')
-  const [contactMethod, setContactMethod] = useState<'phone' | 'email'>(
-    draft?.contactMethod === 'email' || draft?.contactMethod === 'phone'
-      ? draft.contactMethod
-      : 'phone'
-  )
-  const [customerEmail, setCustomerEmail] = useState(draft?.customerEmail || '')
   const [customerPhone, setCustomerPhone] = useState(draft?.customerPhone || '')
   const [prefLoaded, setPrefLoaded] = useState(false)
 
@@ -58,7 +52,6 @@ export function Checkout() {
   useEffect(() => {
     if (!user) return
 
-    setCustomerEmail((prev) => prev || user.email || '')
     setCustomerName((prev) => prev || user.name || '')
     setCustomerPhone((prev) => prev || user.phone || '')
   }, [user])
@@ -111,16 +104,6 @@ export function Checkout() {
   }
 
   useEffect(() => {
-    if (customerPhone) {
-      setContactMethod('phone')
-      return
-    }
-    if (customerEmail) {
-      setContactMethod('email')
-    }
-  }, [customerPhone, customerEmail])
-
-  useEffect(() => {
     if (!selectedLocation) return
     const rate = shippingRates.find((r) => r.location === selectedLocation)
     setShippingFee(rate?.fee || 0)
@@ -128,22 +111,20 @@ export function Checkout() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-      const payload = {
-        contactMethod,
-        customerName,
-        customerEmail,
-        customerPhone,
-        receiverName,
-        receiverPhone,
-        deliveryNote,
-        selectedLocation,
-      }
+    const payload = {
+      customerName,
+      customerPhone,
+      receiverName,
+      receiverPhone,
+      deliveryNote,
+      selectedLocation,
+    }
     try {
       localStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(payload))
     } catch {
       // Ignore storage errors
     }
-  }, [contactMethod, customerName, customerEmail, customerPhone, selectedLocation])
+  }, [customerName, customerPhone, receiverName, receiverPhone, deliveryNote, selectedLocation])
 
   const grandTotal = total + shippingFee
 
@@ -202,56 +183,14 @@ export function Checkout() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Contact method</Label>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <Button
-                    type="button"
-                    variant={contactMethod === 'phone' ? 'default' : 'outline'}
-                    onClick={() => {
-                      setContactMethod('phone')
-                      setCustomerEmail('')
-                    }}
-                    size="sm"
-                    className="sm:h-10 sm:px-4 sm:py-2"
-                  >
-                    Use Phone
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={contactMethod === 'email' ? 'default' : 'outline'}
-                    onClick={() => {
-                      setContactMethod('email')
-                      setCustomerPhone('')
-                    }}
-                    size="sm"
-                    className="sm:h-10 sm:px-4 sm:py-2"
-                  >
-                    Use Email
-                  </Button>
-                </div>
+                <Label htmlFor="customerPhone">Phone Number</Label>
+                <Input
+                  id="customerPhone"
+                  placeholder="+256 700 000 000"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                />
               </div>
-              {contactMethod === 'phone' ? (
-                <div className="space-y-2">
-                  <Label htmlFor="customerPhone">Phone Number</Label>
-                  <Input
-                    id="customerPhone"
-                    placeholder="+256 700 000 000"
-                    value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
-                  />
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Label htmlFor="customerEmail">Email Address</Label>
-                  <Input
-                    id="customerEmail"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={customerEmail}
-                    onChange={(e) => setCustomerEmail(e.target.value)}
-                  />
-                </div>
-              )}
               <div className="pt-2 border-t border-border/60 space-y-4">
                 <div>
                   <Label>Receiver Details (optional)</Label>

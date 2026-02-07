@@ -410,6 +410,20 @@ export async function fetchAdminData(dataset: string) {
   return res.json()
 }
 
+export async function unlockAdminData(payload: { password: string }) {
+  const res = await fetch(`${API_URL}/admin-auth/unmask`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => null)
+    throw new Error(data?.error || 'Failed to unlock data')
+  }
+  return res.json()
+}
+
 // ============================================
 // PAYMENTS (FLUTTERWAVE)
 // ============================================

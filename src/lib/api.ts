@@ -1,4 +1,5 @@
 const API_URL = 'http://localhost:4000/api'
+const CSRF_STORAGE_KEY = 'csrf_token'
 
 import { Product, ShippingRate } from '@/types'
 
@@ -19,6 +20,44 @@ export interface AdminUser {
   permissions?: string[]
 }
 
+const getStoredCsrf = () => {
+  if (typeof window === 'undefined') return null
+  try {
+    return localStorage.getItem(CSRF_STORAGE_KEY)
+  } catch {
+    return null
+  }
+}
+
+const setStoredCsrf = (token: string) => {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem(CSRF_STORAGE_KEY, token)
+  } catch {
+    // Ignore storage failures
+  }
+}
+
+const ensureCsrfToken = async () => {
+  let token = getStoredCsrf()
+  if (token) return token
+
+  const res = await fetch(`${API_URL}/csrf`, { credentials: 'include' })
+  if (!res.ok) throw new Error('Failed to initialize CSRF token')
+  const data = await res.json()
+  token = data?.token
+  if (token) {
+    setStoredCsrf(token)
+  }
+  return token
+}
+
+const fetchWithCsrf = async (url: string, options: RequestInit = {}) => {
+  const token = await ensureCsrfToken()
+  const headers = { ...(options.headers || {}), 'x-csrf-token': token }
+  return fetch(url, { ...options, headers })
+}
+
 // ============================================
 // PRODUCTS
 // ============================================
@@ -36,7 +75,7 @@ export async function fetchProduct(id: number): Promise<Product> {
 }
 
 export async function createProduct(data: Omit<Product, 'id'>): Promise<Product> {
-  const res = await fetch(`${API_URL}/products`, {
+  const res = await fetchWithCsrf(`${API_URL}/products`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -47,7 +86,7 @@ export async function createProduct(data: Omit<Product, 'id'>): Promise<Product>
 }
 
 export async function updateProduct(id: number, data: Partial<Product>): Promise<Product> {
-  const res = await fetch(`${API_URL}/products/${id}`, {
+  const res = await fetchWithCsrf(`${API_URL}/products/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -58,7 +97,10 @@ export async function updateProduct(id: number, data: Partial<Product>): Promise
 }
 
 export async function deleteProduct(id: number): Promise<void> {
-  const res = await fetch(`${API_URL}/products/${id}`, { method: 'DELETE', credentials: 'include' })
+  const res = await fetchWithCsrf(`${API_URL}/products/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  })
   if (!res.ok) throw new Error('Failed to delete product')
 }
 
@@ -73,7 +115,7 @@ export async function fetchShippingRates(): Promise<ShippingRate[]> {
 }
 
 export async function createShippingRate(data: Omit<ShippingRate, 'id'>): Promise<ShippingRate> {
-  const res = await fetch(`${API_URL}/shipping`, {
+  const res = await fetchWithCsrf(`${API_URL}/shipping`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -84,7 +126,7 @@ export async function createShippingRate(data: Omit<ShippingRate, 'id'>): Promis
 }
 
 export async function updateShippingRate(id: number, data: Partial<ShippingRate>): Promise<ShippingRate> {
-  const res = await fetch(`${API_URL}/shipping/${id}`, {
+  const res = await fetchWithCsrf(`${API_URL}/shipping/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -95,7 +137,10 @@ export async function updateShippingRate(id: number, data: Partial<ShippingRate>
 }
 
 export async function deleteShippingRate(id: number): Promise<void> {
-  const res = await fetch(`${API_URL}/shipping/${id}`, { method: 'DELETE', credentials: 'include' })
+  const res = await fetchWithCsrf(`${API_URL}/shipping/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  })
   if (!res.ok) throw new Error('Failed to delete shipping rate')
 }
 
@@ -120,7 +165,7 @@ export async function fetchOrders() {
 }
 
 export async function createOrder(data: any) {
-  const res = await fetch(`${API_URL}/orders`, {
+  const res = await fetchWithCsrf(`${API_URL}/orders`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -131,7 +176,7 @@ export async function createOrder(data: any) {
 }
 
 export async function updateOrderStatus(id: number, status: string) {
-  const res = await fetch(`${API_URL}/orders/${id}`, {
+  const res = await fetchWithCsrf(`${API_URL}/orders/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -179,7 +224,7 @@ export async function fetchSettings(): Promise<StoreSettings> {
 }
 
 export async function updateStoreSettings(data: Partial<StoreSettings['store']>) {
-  const res = await fetch(`${API_URL}/settings/store`, {
+  const res = await fetchWithCsrf(`${API_URL}/settings/store`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -190,7 +235,7 @@ export async function updateStoreSettings(data: Partial<StoreSettings['store']>)
 }
 
 export async function updateTaxSettings(data: Partial<StoreSettings['tax']>) {
-  const res = await fetch(`${API_URL}/settings`, {
+  const res = await fetchWithCsrf(`${API_URL}/settings`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -201,7 +246,7 @@ export async function updateTaxSettings(data: Partial<StoreSettings['tax']>) {
 }
 
 export async function updateNotificationSettings(data: Partial<StoreSettings['notifications']>) {
-  const res = await fetch(`${API_URL}/settings/notifications`, {
+  const res = await fetchWithCsrf(`${API_URL}/settings/notifications`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -212,7 +257,7 @@ export async function updateNotificationSettings(data: Partial<StoreSettings['no
 }
 
 export async function updateCookieSettings(data: Partial<StoreSettings['cookies']>) {
-  const res = await fetch(`${API_URL}/settings/cookies`, {
+  const res = await fetchWithCsrf(`${API_URL}/settings/cookies`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -291,7 +336,7 @@ export async function fetchMyPreferences() {
 }
 
 export async function updateMyPreferences(data: any) {
-  const res = await fetch(`${API_URL}/me/preferences`, {
+  const res = await fetchWithCsrf(`${API_URL}/me/preferences`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',

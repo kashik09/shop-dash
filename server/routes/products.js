@@ -1,11 +1,13 @@
 import { Router } from 'express'
 import { readData, writeData, getNextId } from '../utils/db.js'
 import { requireAdminForWrite } from '../middleware/auth.js'
+import { requireCsrfForWrite } from '../middleware/csrf.js'
 import { logAudit } from '../utils/audit.js'
 import { isNonEmptyString, parseBoolean, parseNumber, toTrimmedString } from '../utils/validation.js'
 
 const router = Router()
 router.use(requireAdminForWrite)
+router.use(requireCsrfForWrite)
 
 const parseProductPayload = (payload, { partial = false } = {}) => {
   const data = {}

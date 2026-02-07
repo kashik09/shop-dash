@@ -16,6 +16,7 @@ import consentsRouter from './routes/consents.js'
 import authRouter from './routes/auth.js'
 import adminAuthRouter from './routes/admin-auth.js'
 import meRouter from './routes/me.js'
+import csrfRouter from './routes/csrf.js'
 import { requireAdmin } from './middleware/auth.js'
 
 const app = express()
@@ -75,6 +76,7 @@ app.use('/api/settings', settingsRouter)
 app.use('/api/users', requireAdmin, usersRouter)
 app.use('/api/admins', requireAdmin, adminsRouter)
 app.use('/api/consents', consentsRouter)
+app.use('/api/csrf', csrfRouter)
 app.use('/api/auth', authLimiter, authRouter)
 app.use('/api/admin-auth', authLimiter, adminAuthRouter)
 app.use('/api/me', meRouter)
@@ -111,6 +113,7 @@ app.listen(PORT, () => {
   - /api/users
   - /api/admins
   - /api/consents
+  - /api/csrf
   - /api/auth
   - /api/admin-auth
   - /api/me

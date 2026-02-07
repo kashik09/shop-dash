@@ -4,12 +4,14 @@ import { hashPassword } from '../utils/auth.js'
 import { requireSuperAdmin } from '../middleware/auth.js'
 import { logAudit } from '../utils/audit.js'
 import { isEmail, isNonEmptyString } from '../utils/validation.js'
+import { requireCsrfForWrite } from '../middleware/csrf.js'
 
 const router = Router()
 router.use((req, res, next) => {
   if (req.method === 'GET' || req.method === 'HEAD') return next()
   return requireSuperAdmin(req, res, next)
 })
+router.use(requireCsrfForWrite)
 
 const allowedRoles = new Set(['admin', 'super_admin'])
 

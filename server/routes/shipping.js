@@ -1,11 +1,13 @@
 import { Router } from 'express'
 import { readData, writeData, getNextId } from '../utils/db.js'
 import { requireAdminForWrite } from '../middleware/auth.js'
+import { requireCsrfForWrite } from '../middleware/csrf.js'
 import { logAudit } from '../utils/audit.js'
 import { isNonEmptyString, parseNumber, toTrimmedString } from '../utils/validation.js'
 
 const router = Router()
 router.use(requireAdminForWrite)
+router.use(requireCsrfForWrite)
 
 router.get('/', (req, res) => {
   res.json(readData('shipping'))

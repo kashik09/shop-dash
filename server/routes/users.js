@@ -4,8 +4,10 @@ import { decryptField, encryptField, hashValue, normalizeEmail, normalizePhone }
 import { hashPassword } from '../utils/auth.js'
 import { logAudit } from '../utils/audit.js'
 import { isEmail, isPhone, isNonEmptyString } from '../utils/validation.js'
+import { requireCsrfForWrite } from '../middleware/csrf.js'
 
 const router = Router()
+router.use(requireCsrfForWrite)
 
 const toSafeUser = (user) => ({
   id: user.id,

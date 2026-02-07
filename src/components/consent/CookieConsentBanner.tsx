@@ -90,7 +90,7 @@ export function CookieConsentBanner() {
         className="w-full max-w-xl rounded-2xl border border-border/70 bg-card/95 p-6 shadow-2xl shadow-black/20"
       >
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
             <span className="text-sm font-semibold">C</span>
           </div>
           <div className="space-y-2">

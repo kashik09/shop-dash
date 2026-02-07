@@ -227,7 +227,7 @@ export function Checkout() {
               </div>
               {!paymentReady && (
                 <p className="text-sm text-muted-foreground">
-                  Flutterwave direct API checkout will be enabled once keys are added.
+                  Mobile Money payments will show here once setup is complete.
                 </p>
               )}
             </CardContent>

@@ -62,9 +62,9 @@ export function Privacy() {
         <section>
           <h2 className="text-xl font-semibold mb-3">5. Data Security</h2>
           <p className="text-muted-foreground leading-relaxed">
-            We implement appropriate security measures to protect your personal information.
-            However, no method of transmission over the Internet or electronic storage is 100% secure,
-            and we cannot guarantee absolute security.
+            We implement security measures such as API rate limiting, security headers, and restricted
+            request sizes to protect your personal information. However, no method of transmission over
+            the Internet or electronic storage is 100% secure, and we cannot guarantee absolute security.
           </p>
         </section>
 

@@ -1,5 +1,7 @@
 import express from 'express'
 import cors from 'cors'
+import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
 
 // Routes
 import productsRouter from './routes/products.js'
@@ -13,10 +15,31 @@ import consentsRouter from './routes/consents.js'
 
 const app = express()
 const PORT = process.env.PORT || 4000
+const corsOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()).filter(Boolean)
+  : null
 
 // Middleware
-app.use(cors())
-app.use(express.json())
+app.disable('x-powered-by')
+
+if (process.env.TRUST_PROXY === '1') {
+  app.set('trust proxy', 1)
+}
+
+app.use(helmet())
+app.use(cors({
+  origin: corsOrigins && corsOrigins.length > 0 ? corsOrigins : true,
+}))
+app.use(express.json({ limit: '1mb' }))
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+})
+
+app.use('/api', apiLimiter)
 
 // Request logging
 app.use((req, res, next) => {
